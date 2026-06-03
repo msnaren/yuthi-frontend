@@ -27,8 +27,6 @@ let isTransitioning = false;     // True when signal is transitioning (Yellow st
 let isNavigating = false;
 let autoModeActive = true;       // True: System runs based on YOLO counts. False: Manual overrides
 let emergencyModeActive = false; // System-wide emergency state lock
-let ambulanceDetected = false;    // Global emergency check
-let ambulanceRoad = null;        // Road containing the emergency vehicle
 let timerInterval = null;        // Reference to main intervals
 
 // --- Theme Switcher Logic ---
@@ -241,12 +239,6 @@ function updateDashboardData() {
 
 // Calculate highest traffic road and the next road that should be green
 function recalculateSignals() {
-    if (ambulanceDetected) {
-        valHighestTraffic.textContent = `${ambulanceRoad.toUpperCase()} ROAD`;
-        valNextGreen.textContent = `${ambulanceRoad.toUpperCase()} ROAD`;
-        return;
-    }
-
     const counts = getCounts();
     
     // Find road with highest vehicle count
@@ -292,11 +284,7 @@ function updateSignalUI(overrideState = null) {
     
     // Reset text highlight styling
     displayGreenRoad.className = 'active-road-display';
-    if (ambulanceDetected) {
-        displayGreenRoad.classList.add('emergency-override');
-        signalAllocationType.textContent = 'EMERGENCY OVERRIDE';
-        signalAllocationType.style.color = 'var(--signal-red)';
-    } else if (systemMode === 'manual') {
+    if (systemMode === 'manual') {
         displayGreenRoad.classList.add('yellow-active');
         signalAllocationType.textContent = 'MANUAL OVERRIDE';
         signalAllocationType.style.color = 'var(--signal-yellow)';
@@ -313,10 +301,7 @@ function updateSignalUI(overrideState = null) {
     // Set AI Decision Panel Text
     const decisionPanel = document.getElementById('ai-decision-panel');
     if (decisionPanel) {
-        if (ambulanceDetected) {
-            decisionPanel.innerHTML = `[AI ALERT] EMERGENCY DETECTED<br>> AMBULANCE ON ${activeRoad.toUpperCase()} ROAD<br>> PREEMPTING SIGNAL STATE`;
-            decisionPanel.classList.add('emergency-mode');
-        } else if (systemMode === 'manual') {
+        if (systemMode === 'manual') {
             decisionPanel.innerHTML = `[SYS] MANUAL OVERRIDE ENGAGED<br>> ADAPTIVE AI SUSPENDED<br>> ${activeRoad.toUpperCase()} SIGNAL FORCED`;
             decisionPanel.classList.remove('emergency-mode');
         } else if (isTransitioning) {
@@ -333,9 +318,7 @@ function updateSignalUI(overrideState = null) {
     lightYellow.classList.remove('active');
     lightGreen.classList.remove('active');
 
-    if (ambulanceDetected) {
-        lightGreen.classList.add('active'); // Ambulance always gets green
-    } else if (isTransitioning) {
+    if (isTransitioning) {
         lightYellow.classList.add('active');
     } else {
         lightGreen.classList.add('active');
@@ -355,21 +338,7 @@ function updateSignalUI(overrideState = null) {
         if (imgBadge) imgBadge.classList.remove('badge-green', 'badge-yellow', 'badge-red');
         if (vidBadge) vidBadge.classList.remove('badge-green', 'badge-yellow', 'badge-red');
 
-        if (ambulanceDetected) {
-            if (road === ambulanceRoad) {
-                card.classList.add('state-green');
-                badge.classList.add('badge-green');
-                badge.textContent = '🟢 GREEN (EMG)';
-                if (imgBadge) { imgBadge.classList.add('badge-green'); imgBadge.textContent = '🟢 GREEN (EMG)'; }
-                if (vidBadge) { vidBadge.classList.add('badge-green'); vidBadge.textContent = '🟢 GREEN (EMG)'; }
-            } else {
-                card.classList.add('state-red');
-                badge.classList.add('badge-red');
-                badge.textContent = '🔴 RED';
-                if (imgBadge) { imgBadge.classList.add('badge-red'); imgBadge.textContent = '🔴 RED'; }
-                if (vidBadge) { vidBadge.classList.add('badge-red'); vidBadge.textContent = '🔴 RED'; }
-            }
-        } else if (road === currentGreenRoad) {
+        if (road === currentGreenRoad) {
             if (isTransitioning) {
                 card.classList.add('state-yellow');
                 badge.classList.add('badge-yellow');
@@ -433,7 +402,7 @@ function updateManualControlButtonsState() {
     roads.forEach(road => {
         const btn = document.getElementById(`btn-man-${road}`);
         if (btn) {
-            if (systemMode === 'manual' && !ambulanceDetected) {
+            if (systemMode === 'manual') {
                 btn.removeAttribute('disabled');
                 if (road === currentGreenRoad) {
                     btn.classList.add('active-green');
@@ -450,7 +419,7 @@ function updateManualControlButtonsState() {
 
 // Manually trigger a road signal green (only works when systemMode is 'manual')
 function manualSignalOverride(road) {
-    if (systemMode !== 'manual' || ambulanceDetected) return;
+    if (systemMode !== 'manual') return;
     
     currentGreenRoad = road;
     nextGreenRoad = road; // Keep next road aligned
@@ -459,69 +428,11 @@ function manualSignalOverride(road) {
     updateSignalUI();
 }
 
-// --- Ambulance Override Control Room Logic ---
-
-function triggerAmbulance(road) {
-    ambulanceDetected = true;
-    ambulanceRoad = road;
-
-    // Highlight the active button in the simulator panel
-    document.querySelectorAll('.btn-amb-dir').forEach(btn => {
-        btn.classList.remove('override-active');
-    });
-    const activeBtn = document.getElementById(`btn-amb-${road}`);
-    if (activeBtn) activeBtn.classList.add('override-active');
-
-    // Apply emergency override visual card states
-    emergencyBanner.classList.add('emergency-active');
-    emergencyStatus.className = 'emergency-status-text active-emergency';
-    emergencyStatus.textContent = 'AMBULANCE DETECTED';
-    
-    emergencyDesc.innerHTML = `
-        <span class="highlight">EMERGENCY PRIORITY ACTIVE</span><br>
-        <span>GREEN SIGNAL OVERRIDE IN EFFECT FOR <strong>${road.toUpperCase()} ROAD</strong></span>
-    `;
-    
-    // Recalculate and update UI immediately
-    recalculateSignals();
-    updateSignalUI();
-    
-    // Adjust timer state visually
-    countdown = signalTimerMax;
-    updateTimerCircle();
-}
-
-function clearAmbulance() {
-    if (!ambulanceDetected) return;
-
-    ambulanceDetected = false;
-    ambulanceRoad = null;
-
-    // Clear panel button highlights
-    document.querySelectorAll('.btn-amb-dir').forEach(btn => {
-        btn.classList.remove('override-active');
-    });
-
-    // Restore emergency card text
-    emergencyBanner.classList.remove('emergency-active');
-    emergencyStatus.className = 'emergency-status-text no-emergency';
-    emergencyStatus.textContent = 'NO AMBULANCE DETECTED';
-    emergencyDesc.textContent = 'System monitoring active for emergency transponders. Automatic override is currently idle.';
-
-    // Reset transition variables and trigger standard calculation
-    isTransitioning = false;
-    countdown = signalTimerMax;
-    
-    recalculateSignals();
-    updateSignalUI();
-    updateTimerCircle();
-}
-
 // --- Core Timer & Signal Controller ---
 
 function updateTimerCircle() {
     // If in manual mode, pause countdown display and show "MAN"
-    if (systemMode === 'manual' && !ambulanceDetected) {
+    if (systemMode === 'manual') {
         timerText.textContent = "MAN";
         timerCircle.style.strokeDashoffset = 0;
         timerCircle.style.stroke = 'var(--signal-yellow)';
@@ -535,11 +446,7 @@ function updateTimerCircle() {
     const circumference = 2 * Math.PI * radius; // 339.292
     
     let offset;
-    if (ambulanceDetected) {
-        // Flash timer at 0 or full in emergency mode
-        offset = 0;
-        timerCircle.style.stroke = 'var(--signal-red)';
-    } else if (isTransitioning) {
+    if (isTransitioning) {
         // Progress representing yellow transition (3 seconds max)
         const percent = (countdown / 3);
         offset = circumference - (percent * circumference);
@@ -557,13 +464,6 @@ function startSignalController() {
     if (timerInterval) clearInterval(timerInterval);
 
     timerInterval = setInterval(() => {
-        // If emergency is active, freeze the normal traffic light cycle and just pulse the visual clock
-        if (ambulanceDetected) {
-            countdown = 0;
-            updateTimerCircle();
-            return;
-        }
-
         // If in manual override mode, timer ticks are suspended
         if (systemMode === 'manual') {
             updateTimerCircle();

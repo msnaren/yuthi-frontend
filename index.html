@@ -266,16 +266,7 @@
                             </div>
                         </div>
 
-                        <div class="control-row" style="margin-top: 4px;">
-                            <label>EMERGENCY AMBULANCE OVERRIDE</label>
-                            <div class="ambulance-selector-grid">
-                                <button id="btn-amb-north" class="btn-amb-dir" onclick="triggerAmbulance('north')">NORTH</button>
-                                <button id="btn-amb-south" class="btn-amb-dir" onclick="triggerAmbulance('south')">SOUTH</button>
-                                <button id="btn-amb-east" class="btn-amb-dir" onclick="triggerAmbulance('east')">EAST</button>
-                                <button id="btn-amb-west" class="btn-amb-dir" onclick="triggerAmbulance('west')">WEST</button>
-                                <button id="btn-amb-reset" class="btn-reset-override" onclick="clearAmbulance()">DISABLE EMERGENCY STATE</button>
-                            </div>
-                        </div>
+
 
                         <div class="simulation-info-notes">
                             <strong>Dashboard Notes:</strong><br>
@@ -344,27 +335,7 @@
                         </div>
                     </div>
 
-                    <!-- Ambulance Priority Card -->
-                    <div id="emergency-banner" class="glass-panel emergency-card">
-                        <div class="emergency-header">
-                            <span class="emergency-icon">🚑</span>
-                            <span>AMBULANCE STATUS</span>
-                        </div>
 
-                        <div id="emergency-status" class="emergency-status-text no-emergency">
-                            NO AMBULANCE DETECTED
-                        </div>
-
-                        <div id="emergency-desc" class="emergency-details">
-                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px;">
-                                <button class="btn-primary btn-amb-dir" id="btn-amb-north" onclick="triggerAmbulance('north')" style="font-size: 0.7rem;">NORTH</button>
-                                <button class="btn-primary btn-amb-dir" id="btn-amb-south" onclick="triggerAmbulance('south')" style="font-size: 0.7rem;">SOUTH</button>
-                                <button class="btn-primary btn-amb-dir" id="btn-amb-east" onclick="triggerAmbulance('east')" style="font-size: 0.7rem;">EAST</button>
-                                <button class="btn-primary btn-amb-dir" id="btn-amb-west" onclick="triggerAmbulance('west')" style="font-size: 0.7rem;">WEST</button>
-                            </div>
-                            <button class="btn-secondary" style="width: 100%; margin-top: 8px; padding: 6px; font-size: 0.75rem;" onclick="clearAmbulance()">CLEAR EMERGENCY</button>
-                        </div>
-                    </div>
 
                 </div>
 

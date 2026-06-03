@@ -41,7 +41,7 @@ window.setTheme = function(themeName) {
 }
 
 // Backend Integration Variables
-const BACKEND_URL = window.location.protocol + '//' + window.location.hostname + ':5000';
+const BACKEND_URL = 'http://127.0.0.1:5000';
 let backendOnline = false;
 let activeModelType = 'base'; // 'base' (pretrained COCO yolov8s.pt, highly accurate) or 'custom' (experimental custom weight best.pt)
 
@@ -133,7 +133,7 @@ function switchTab(tabId) {
 
     // 3. Auto-load database stats and trends if transitioning to analytics
     if (tabId === 'analytics') {
-        fetchAnalyticsDashboard();
+        // fetchAnalyticsDashboard(); // TODO: implement this
     }
 }
 
@@ -1468,7 +1468,7 @@ function init() {
     setInterval(updateSystemClock, 1000);
     
     // Setup interval for charts
-    setInterval(updateAnalyticsCharts, 3000);
+    // setInterval(updateAnalyticsCharts, 3000); // TODO: implement this
 
     // Load theme on startup
     const savedTheme = localStorage.getItem('traffic_theme') || 'dark';

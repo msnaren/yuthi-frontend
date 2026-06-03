@@ -1437,18 +1437,7 @@ function uploadVideoFile(road, file) {
             // Sync new vehicle count to dashboard and trigger adaptive signal adjustment
             updateRoadVehicleCount(road, data.total_vehicles, heavyCount, fastCount, 'video');
 
-            // Automatic emergency ambulance detection override for video upload
-            if (data.ambulance_detected) {
-                if (!ambulanceDetected || ambulanceRoad !== road) {
-                    console.log(`[🚑 EMERGENCY] Ambulance detected in video analytics on ${road.toUpperCase()} ROAD! Activating priority green...`);
-                    triggerAmbulance(road);
-                }
-            } else {
-                if (ambulanceDetected && ambulanceRoad === road) {
-                    console.log(`[🚑 EMERGENCY] Ambulance cleared from ${road.toUpperCase()} ROAD.`);
-                    clearAmbulance();
-                }
-            }
+
         } else {
             statusVal.textContent = 'Failed';
             statusVal.className = 'status-val text-failed';
@@ -1532,11 +1521,9 @@ function renderAnalyticsData(data) {
     // 1. Update Core Telemetry Cards
     const totalEventsEl = document.getElementById('db-stat-total-events');
     const avgDensityEl = document.getElementById('db-stat-avg-density');
-    const totalAmbulancesEl = document.getElementById('db-stat-total-ambulances');
 
     if (totalEventsEl) totalEventsEl.textContent = data.total_events || 0;
     if (avgDensityEl) avgDensityEl.textContent = (data.avg_density || 0).toFixed(1) + '%';
-    if (totalAmbulancesEl) totalAmbulancesEl.textContent = data.total_ambulances || 0;
 
     // 2. Render Vertical Weekly Congestion Trend Chart
     const weeklyContainer = document.getElementById('weekly-trends-chart');
@@ -1653,7 +1640,7 @@ function renderAnalyticsData(data) {
         
         const recentLogs = data.recent_logs || [];
         if (recentLogs.length === 0) {
-            tableBody.innerHTML = '<tr><td colspan="7" class="table-empty-row">NO TRANSACTIONS RECORDED IN SQLITE YET.</td></tr>';
+            tableBody.innerHTML = '<tr><td colspan="6" class="table-empty-row">NO TRANSACTIONS RECORDED IN SQLITE YET.</td></tr>';
             return;
         }
 
@@ -1672,11 +1659,6 @@ function renderAnalyticsData(data) {
                 densityText = 'MEDIUM';
             }
 
-            let ambPillClass = '';
-            if (log.ambulance_detected) {
-                ambPillClass = 'status-pill-emergency';
-            }
-
             const tr = document.createElement('tr');
             tr.innerHTML = `
                 <td style="font-weight: 700; font-family: monospace;">#${log.id}</td>
@@ -1691,9 +1673,7 @@ function renderAnalyticsData(data) {
                 <td>
                     <span class="status-pill ${pillClass}">${log.density_percentage}% ${densityText}</span>
                 </td>
-                <td>
-                    ${log.ambulance_detected ? `<span class="status-pill ${ambPillClass}">🚨 PRIORITY EMERGENCY</span>` : '<span style="color: var(--text-secondary); opacity: 0.5;">-</span>'}
-                </td>
+
                 <td style="text-transform: capitalize; color: var(--text-secondary);">
                     ${log.media_type === 'image' ? '📷 Uploaded Photo' : '📹 Video Portal frame'}
                 </td>
@@ -1725,7 +1705,6 @@ function getMockAnalyticsData() {
         const heavy = Math.floor(count * 0.15);
         const fast = Math.floor(count * 0.25);
         const density = Math.min(100, Math.round((count / 15.0) * 100));
-        const amb = (i === 4 || i === 12); // ambulance trigger in mock history
 
         mockLogs.push({
             id: 489 - i,
@@ -1735,14 +1714,12 @@ function getMockAnalyticsData() {
             heavy_count: heavy,
             fast_count: fast,
             density_percentage: density,
-            ambulance_detected: amb,
             media_type: media[i % media.length]
         });
     }
 
     return {
         total_events: 489,
-        total_ambulances: 18,
         avg_density: 44.5,
         weekly_trends: [
             { day: 'Sunday', avg_vehicles: 5.4 },

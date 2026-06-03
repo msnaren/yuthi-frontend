@@ -40,6 +40,14 @@
                     <span class="label">SYS TIME:</span>
                     <span class="value" id="sys-time">16:59:00</span>
                 </div>
+                <div class="meta-tag glass-panel">
+                    <span class="label">THEME:</span>
+                    <select id="theme-selector" onchange="setTheme(this.value)" style="background: transparent; color: var(--accent-cyan); border: none; font-weight: 700; font-family: 'Space Grotesk', sans-serif; cursor: pointer; outline: none;">
+                        <option value="dark" style="color: black;">DARK</option>
+                        <option value="light" style="color: black;">LIGHT</option>
+                        <option value="black" style="color: black;">BLACK</option>
+                    </select>
+                </div>
             </div>
         </header>
 
@@ -91,12 +99,14 @@
                     <input type="file" id="file-video-north" class="video-file-input" accept="video/*" onchange="handleVideoSelected('north', event)">
                     <input type="file" id="file-photo-north" class="video-file-input" accept="image/*" onchange="handlePhotoSelected('north', event)">
 
-                    <div class="road-vehicle-count">
-                        <span id="count-north">0</span>
-                        <span class="unit">Vehicles</span>
+                    <div class="road-vehicle-count" id="count-north">
+                        0 <span class="unit">Vehicles</span>
+                    </div>
+                    <div class="density-heatmap-container">
+                        <div class="density-heatmap-bar" id="heatmap-north" style="width: 0%;"></div>
                     </div>
                     <div class="road-footer">
-                        <span id="density-north" class="density-badge density-medium">MEDIUM</span>
+                        <span id="density-north" class="density-badge density-low">LOW</span>
                     </div>
                 </div>
 
@@ -127,11 +137,15 @@
                     <input type="file" id="file-photo-south" class="video-file-input" accept="image/*" onchange="handlePhotoSelected('south', event)">
 
                     <div class="road-vehicle-count">
-                        <span id="count-south">0</span>
-                        <span class="unit">Vehicles</span>
-                    </div>
-                    <div class="road-footer">
-                        <span id="density-south" class="density-badge density-low">LOW</span>
+                        <div class="road-vehicle-count" id="count-south">
+                            0 <span class="unit">Vehicles</span>
+                        </div>
+                        <div class="density-heatmap-container">
+                            <div class="density-heatmap-bar" id="heatmap-south" style="width: 0%;"></div>
+                        </div>
+                        <div class="road-footer">
+                            <span class="density-badge density-low" id="density-south">LOW</span>
+                        </div>
                     </div>
                 </div>
 
@@ -162,11 +176,15 @@
                     <input type="file" id="file-photo-east" class="video-file-input" accept="image/*" onchange="handlePhotoSelected('east', event)">
 
                     <div class="road-vehicle-count">
-                        <span id="count-east">0</span>
-                        <span class="unit">Vehicles</span>
-                    </div>
-                    <div class="road-footer">
-                        <span id="density-east" class="density-badge density-high">HIGH</span>
+                        <div class="road-vehicle-count" id="count-east">
+                            0 <span class="unit">Vehicles</span>
+                        </div>
+                        <div class="density-heatmap-container">
+                            <div class="density-heatmap-bar" id="heatmap-east" style="width: 0%;"></div>
+                        </div>
+                        <div class="road-footer">
+                            <span class="density-badge density-low" id="density-east">LOW</span>
+                        </div>
                     </div>
                 </div>
 
@@ -197,11 +215,15 @@
                     <input type="file" id="file-photo-west" class="video-file-input" accept="image/*" onchange="handlePhotoSelected('west', event)">
 
                     <div class="road-vehicle-count">
-                        <span id="count-west">0</span>
-                        <span class="unit">Vehicles</span>
-                    </div>
-                    <div class="road-footer">
-                        <span id="density-west" class="density-badge density-low">LOW</span>
+                        <div class="road-vehicle-count" id="count-west">
+                            0 <span class="unit">Vehicles</span>
+                        </div>
+                        <div class="density-heatmap-container">
+                            <div class="density-heatmap-bar" id="heatmap-west" style="width: 0%;"></div>
+                        </div>
+                        <div class="road-footer">
+                            <span class="density-badge density-low" id="density-west">LOW</span>
+                        </div>
                     </div>
                 </div>
 
@@ -276,9 +298,16 @@
                         <div class="traffic-light-container">
                             <div id="light-red" class="traffic-light-bulb"></div>
                             <div id="light-yellow" class="traffic-light-bulb"></div>
-                            <div id="light-green" class="traffic-light-bulb active"></div>
+                            <div class="traffic-light-bulb" id="light-green"></div>
                         </div>
-
+                        
+                        <!-- AI Decision Panel -->
+                        <div class="ai-decision-panel" id="ai-decision-panel">
+                            [SYS] INITIALIZING NEURAL NET...<br>
+                            > CALIBRATING VISION SENSORS...<br>
+                            > AWAITING LIVE TRAFFIC STREAM...
+                        </div>
+                        
                         <span style="font-size: 0.75rem; color: var(--text-secondary); text-transform: uppercase; font-weight: 500; letter-spacing: 0.05em;">
                             Signal Allocation: <span id="signal-allocation-type" style="color: var(--signal-green); font-weight: 700;">ADAPTIVE</span>
                         </span>
@@ -327,7 +356,13 @@
                         </div>
 
                         <div id="emergency-desc" class="emergency-details">
-                            System monitoring active for emergency transponders. Automatic override is currently idle.
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px;">
+                                <button class="btn-primary btn-amb-dir" id="btn-amb-north" onclick="triggerAmbulance('north')" style="font-size: 0.7rem;">NORTH</button>
+                                <button class="btn-primary btn-amb-dir" id="btn-amb-south" onclick="triggerAmbulance('south')" style="font-size: 0.7rem;">SOUTH</button>
+                                <button class="btn-primary btn-amb-dir" id="btn-amb-east" onclick="triggerAmbulance('east')" style="font-size: 0.7rem;">EAST</button>
+                                <button class="btn-primary btn-amb-dir" id="btn-amb-west" onclick="triggerAmbulance('west')" style="font-size: 0.7rem;">WEST</button>
+                            </div>
+                            <button class="btn-secondary" style="width: 100%; margin-top: 8px; padding: 6px; font-size: 0.75rem;" onclick="clearAmbulance()">CLEAR EMERGENCY</button>
                         </div>
                     </div>
 
@@ -359,9 +394,14 @@
                     <input type="file" id="file-photo-img-north" class="video-file-input" accept="image/*" onchange="handlePhotoSelected('north', event)">
 
                     <div class="road-footer">
-                        <div class="road-vehicle-count" style="margin-bottom:0;">
-                            <span id="img-count-north" style="font-size: 1.8rem;">0</span>
-                            <span class="unit">Vehicles</span>
+                        <div class="road-vehicle-count" id="count-north">
+                            0 <span class="unit">Vehicles</span>
+                        </div>
+                        <div class="density-heatmap-container">
+                            <div class="density-heatmap-bar" id="heatmap-north" style="width: 0%;"></div>
+                        </div>
+                        <div style="font-size: 0.65rem; color: var(--text-secondary); display: flex; gap: 8px; margin-top: 6px; font-weight: 700;">
+                            <span id="car-north">🚗 0</span> <span id="bus-north">🚌 0</span> <span id="truck-north">🚚 0</span> <span id="bike-north">🏍️ 0</span>
                         </div>
                         <div class="road-heavy-count" style="font-size: 0.72rem; color: var(--text-secondary); margin-top: 4px; margin-bottom: 0;">
                             🚛 Heavy Vehicles: <span id="img-heavy-north">0</span>

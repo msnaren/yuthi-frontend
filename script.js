@@ -24,12 +24,24 @@ let nextGreenRoad = 'north';      // Initial calculation
 let signalTimerMax = 30;         // Max countdown timer duration
 let countdown = 30;              // Current timer tracking remaining seconds
 let isTransitioning = false;     // True when signal is transitioning (Yellow state)
+let isNavigating = false;
+let autoModeActive = true;       // True: System runs based on YOLO counts. False: Manual overrides
+let emergencyModeActive = false; // System-wide emergency state lock
 let ambulanceDetected = false;    // Global emergency check
 let ambulanceRoad = null;        // Road containing the emergency vehicle
 let timerInterval = null;        // Reference to main intervals
 
+// --- Theme Switcher Logic ---
+window.setTheme = function(themeName) {
+    document.documentElement.setAttribute('data-theme', themeName);
+    localStorage.setItem('traffic_theme', themeName);
+    
+    const selector = document.getElementById('theme-selector');
+    if (selector) selector.value = themeName;
+}
+
 // Backend Integration Variables
-const BACKEND_URL = 'http://localhost:5000';
+const BACKEND_URL = window.location.protocol + '//' + window.location.hostname + ':5000';
 let backendOnline = false;
 let activeModelType = 'base'; // 'base' (pretrained COCO yolov8s.pt, highly accurate) or 'custom' (experimental custom weight best.pt)
 
@@ -160,11 +172,33 @@ function updateDashboardData() {
         const fastCount = fastCounts[road];
         
         // 1. Update Main Dashboard counts
-        domCounts[road].textContent = count;
+        domCounts[road].innerHTML = `${count} <span class="unit">Vehicles</span>`;
         const heavyEl = document.getElementById(`heavy-${road}`);
         if (heavyEl) heavyEl.textContent = heavyCount;
         const fastEl = document.getElementById(`fast-${road}`);
         if (fastEl) fastEl.textContent = fastCount;
+        
+        // 1.5 Update specific vehicle icons (approximate from heavy/fast for UI)
+        let trucks = heavyCount;
+        let bikes = fastCount;
+        let cars = Math.max(0, count - trucks - bikes);
+        let buses = 0;
+        if (trucks > 1) { buses = 1; trucks -= 1; }
+        
+        const carEl = document.getElementById(`car-${road}`);
+        if (carEl) carEl.innerText = `🚗 ${cars}`;
+        const busEl = document.getElementById(`bus-${road}`);
+        if (busEl) busEl.innerText = `🚌 ${buses}`;
+        const truckEl = document.getElementById(`truck-${road}`);
+        if (truckEl) truckEl.innerText = `🚚 ${trucks}`;
+        const bikeEl = document.getElementById(`bike-${road}`);
+        if (bikeEl) bikeEl.innerText = `🏍️ ${bikes}`;
+
+        // 1.6 Update Heatmap
+        const maxCapacity = 30; // Traffic capacity assumption
+        let densityPct = Math.min((count / maxCapacity) * 100, 100);
+        const heatmapBar = document.getElementById(`heatmap-${road}`);
+        if (heatmapBar) heatmapBar.style.width = `${densityPct}%`;
 
         // 2. Update Image Upload Portal counts
         const imgCount = document.getElementById(`img-count-${road}`);
@@ -274,6 +308,24 @@ function updateSignalUI(overrideState = null) {
         displayGreenRoad.classList.add('green-active');
         signalAllocationType.textContent = 'ADAPTIVE';
         signalAllocationType.style.color = 'var(--signal-green)';
+    }
+
+    // Set AI Decision Panel Text
+    const decisionPanel = document.getElementById('ai-decision-panel');
+    if (decisionPanel) {
+        if (ambulanceDetected) {
+            decisionPanel.innerHTML = `[AI ALERT] EMERGENCY DETECTED<br>> AMBULANCE ON ${activeRoad.toUpperCase()} ROAD<br>> PREEMPTING SIGNAL STATE`;
+            decisionPanel.classList.add('emergency-mode');
+        } else if (systemMode === 'manual') {
+            decisionPanel.innerHTML = `[SYS] MANUAL OVERRIDE ENGAGED<br>> ADAPTIVE AI SUSPENDED<br>> ${activeRoad.toUpperCase()} SIGNAL FORCED`;
+            decisionPanel.classList.remove('emergency-mode');
+        } else if (isTransitioning) {
+            decisionPanel.innerHTML = `[AI] SHIFTING FLOW DYNAMICS<br>> CLEARING INTERSECTION<br>> PREPARING ${nextGreenRoad.toUpperCase()} ROAD`;
+            decisionPanel.classList.remove('emergency-mode');
+        } else {
+            decisionPanel.innerHTML = `[AI] MAX DENSITY ROUTING<br>> ${activeRoad.toUpperCase()} DETECTED HIGHEST VOLUME<br>> OPTIMIZING TRAFFIC FLOW`;
+            decisionPanel.classList.remove('emergency-mode');
+        }
     }
 
     // Set physical lights status
@@ -666,7 +718,7 @@ function startLiveFeed(road, chosenDeviceId = null) {
                     console.log(`[*] Road ${road.toUpperCase()} starting stream using camera: ${selectedDevice.label || 'Unnamed Device'}`);
                     constraints = {
                         video: {
-                            deviceId: { exact: selectedDevice.deviceId }
+                            deviceId: selectedDevice.deviceId
                         }
                     };
                 }
@@ -731,7 +783,8 @@ function startLiveFeed(road, chosenDeviceId = null) {
         })
         .catch(err => {
             console.error("Camera access error:", err);
-            alert("Error accessing webcam. Please verify camera permissions in your browser.");
+            alert("Error accessing webcam: " + err.name + "\n\nSince no camera was found or permission was denied, we will now open the file picker so you can select a traffic video file to simulate the Live stream instead!");
+            triggerVideoUpload(road);
         });
 }
 
@@ -1062,19 +1115,8 @@ function renderBackendPredictions(road, data, type) {
     recalculateSignals();
     updateSignalUI();
 
-    // Automatic emergency ambulance detection override
-    if (data.ambulance_detected) {
-        if (!ambulanceDetected || ambulanceRoad !== road) {
-            console.log(`[🚑 EMERGENCY] Ambulance detected on ${road.toUpperCase()} ROAD! Activating priority green...`);
-            triggerAmbulance(road);
-        }
-    } else {
-        // If an ambulance was previously detected on this road, but is no longer detected, clear the emergency state
-        if (ambulanceDetected && ambulanceRoad === road) {
-            console.log(`[🚑 EMERGENCY] Ambulance cleared from ${road.toUpperCase()} ROAD.`);
-            clearAmbulance();
-        }
-    }
+    // Automatic emergency ambulance detection override has been disabled.
+    // The user must now manually trigger ambulance overrides via the dashboard UI.
 
     const dashOverlay = document.getElementById(`overlay-${road}`);
     const imgOverlay = document.getElementById(`img-overlay-${road}`);
@@ -1424,6 +1466,13 @@ function init() {
     // 1. Initialize clock and schedule periodic clock updates
     updateSystemClock();
     setInterval(updateSystemClock, 1000);
+    
+    // Setup interval for charts
+    setInterval(updateAnalyticsCharts, 3000);
+
+    // Load theme on startup
+    const savedTheme = localStorage.getItem('traffic_theme') || 'dark';
+    setTheme(savedTheme);
     
     // 1.5. Update initial dashboard counts to reflect the state variables
     updateDashboardData();

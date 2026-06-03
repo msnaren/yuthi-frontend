@@ -62,9 +62,6 @@
             <button id="nav-btn-videos" class="btn-nav" onclick="switchTab('videos')">
                 <span>📹</span> Video & Live Portal
             </button>
-            <button id="nav-btn-analytics" class="btn-nav" onclick="switchTab('analytics')">
-                <span>📈</span> Performance & Analytics
-            </button>
         </nav>
 
         <!-- ==================== TAB 1: DASHBOARD ==================== -->
@@ -266,7 +263,16 @@
                             </div>
                         </div>
 
-
+                        <div class="control-row" style="margin-top: 4px;">
+                            <label>EMERGENCY AMBULANCE OVERRIDE</label>
+                            <div class="ambulance-selector-grid">
+                                <button id="btn-amb-north" class="btn-amb-dir" onclick="triggerAmbulance('north')">NORTH</button>
+                                <button id="btn-amb-south" class="btn-amb-dir" onclick="triggerAmbulance('south')">SOUTH</button>
+                                <button id="btn-amb-east" class="btn-amb-dir" onclick="triggerAmbulance('east')">EAST</button>
+                                <button id="btn-amb-west" class="btn-amb-dir" onclick="triggerAmbulance('west')">WEST</button>
+                                <button id="btn-amb-reset" class="btn-reset-override" onclick="clearAmbulance()">DISABLE EMERGENCY STATE</button>
+                            </div>
+                        </div>
 
                         <div class="simulation-info-notes">
                             <strong>Dashboard Notes:</strong><br>
@@ -760,194 +766,6 @@
 
             </div>
         </div>
-
-        <!-- ==================== TAB 4: PERFORMANCE & ANALYTICS ==================== -->
-        <div id="tab-analytics" class="tab-content">
-            
-            <!-- Summary Telemetry Row -->
-            <section class="analytics-summary-grid">
-                <div class="glass-panel analytics-summary-card">
-                    <div class="summary-card-icon">🗄️</div>
-                    <div class="summary-card-info">
-                        <span class="summary-label">Total Detections Logged</span>
-                        <span class="summary-val-large" id="db-stat-total-events">-</span>
-                        <span class="summary-desc">Active transactions in SQLite database</span>
-                    </div>
-                </div>
-                
-                <div class="glass-panel analytics-summary-card">
-                    <div class="summary-card-icon">📊</div>
-                    <div class="summary-card-info">
-                        <span class="summary-label">Average Road Density</span>
-                        <span class="summary-val-large" id="db-stat-avg-density">-</span>
-                        <span class="summary-desc">Aggregate congestion loading ratio</span>
-                    </div>
-                </div>
-                
-
-            </section>
-
-            <!-- Charting Dashboard Panels Grid -->
-            <section class="analytics-charts-grid">
-                
-                <!-- Weekly Traffic Averaging -->
-                <div class="glass-panel chart-panel-card">
-                    <div class="chart-card-header">
-                        <span class="chart-title">🗓️ Weekly Average Traffic Load</span>
-                        <span class="chart-subtitle">Average Vehicles by Day of the Week</span>
-                    </div>
-                    <div class="chart-content-wrap">
-                        <div class="css-bar-chart-vertical" id="weekly-trends-chart">
-                            <!-- Populated Dynamically by JS -->
-                            <div class="chart-loading-placeholder">LOADING DATABASE METRICS...</div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Hourly Peaks -->
-                <div class="glass-panel chart-panel-card">
-                    <div class="chart-card-header">
-                        <span class="chart-title">⏰ Peak Congestion Hours Trend</span>
-                        <span class="chart-subtitle">Hourly Average vehicle distribution (00:00 - 23:00)</span>
-                    </div>
-                    <div class="chart-content-wrap">
-                        <div class="css-bar-chart-horizontal" id="hourly-peaks-chart">
-                            <!-- Populated Dynamically by JS -->
-                            <div class="chart-loading-placeholder">LOADING DATABASE METRICS...</div>
-                        </div>
-                    </div>
-                </div>
-
-            </section>
-
-            <!-- Lane-wise Congestion Heatmap / Telemetry Card Row -->
-            <section class="analytics-roads-comparison-title">
-                🛣️ DIRECTIONAL LOAD ANALYSIS & HEATMAP
-            </section>
-            
-            <section class="analytics-roads-comparison-grid">
-                <!-- North Road Average -->
-                <div class="glass-panel road-comparison-card" id="road-comp-north">
-                    <div class="road-comp-header">
-                        <span class="road-comp-name">NORTH LANE</span>
-                        <span class="road-comp-dot dot-north"></span>
-                    </div>
-                    <div class="road-comp-stats">
-                        <div class="comp-stat-item">
-                            <span class="comp-stat-label">Avg Volume:</span>
-                            <span class="comp-stat-val" id="road-avg-vol-north">-</span>
-                        </div>
-                        <div class="comp-stat-item">
-                            <span class="comp-stat-label">Heavy Cargo %:</span>
-                            <span class="comp-stat-val" id="road-avg-heavy-north">-</span>
-                        </div>
-                        <div class="comp-stat-item">
-                            <span class="comp-stat-label">Avg Speed (Disp):</span>
-                            <span class="comp-stat-val" id="road-avg-speed-north">-</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- South Road Average -->
-                <div class="glass-panel road-comparison-card" id="road-comp-south">
-                    <div class="road-comp-header">
-                        <span class="road-comp-name">SOUTH LANE</span>
-                        <span class="road-comp-dot dot-south"></span>
-                    </div>
-                    <div class="road-comp-stats">
-                        <div class="comp-stat-item">
-                            <span class="comp-stat-label">Avg Volume:</span>
-                            <span class="comp-stat-val" id="road-avg-vol-south">-</span>
-                        </div>
-                        <div class="comp-stat-item">
-                            <span class="comp-stat-label">Heavy Cargo %:</span>
-                            <span class="comp-stat-val" id="road-avg-heavy-south">-</span>
-                        </div>
-                        <div class="comp-stat-item">
-                            <span class="comp-stat-label">Avg Speed (Disp):</span>
-                            <span class="comp-stat-val" id="road-avg-speed-south">-</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- East Road Average -->
-                <div class="glass-panel road-comparison-card" id="road-comp-east">
-                    <div class="road-comp-header">
-                        <span class="road-comp-name">EAST LANE</span>
-                        <span class="road-comp-dot dot-east"></span>
-                    </div>
-                    <div class="road-comp-stats">
-                        <div class="comp-stat-item">
-                            <span class="comp-stat-label">Avg Volume:</span>
-                            <span class="comp-stat-val" id="road-avg-vol-east">-</span>
-                        </div>
-                        <div class="comp-stat-item">
-                            <span class="comp-stat-label">Heavy Cargo %:</span>
-                            <span class="comp-stat-val" id="road-avg-heavy-east">-</span>
-                        </div>
-                        <div class="comp-stat-item">
-                            <span class="comp-stat-label">Avg Speed (Disp):</span>
-                            <span class="comp-stat-val" id="road-avg-speed-east">-</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- West Road Average -->
-                <div class="glass-panel road-comparison-card" id="road-comp-west">
-                    <div class="road-comp-header">
-                        <span class="road-comp-name">WEST LANE</span>
-                        <span class="road-comp-dot dot-west"></span>
-                    </div>
-                    <div class="road-comp-stats">
-                        <div class="comp-stat-item">
-                            <span class="comp-stat-label">Avg Volume:</span>
-                            <span class="comp-stat-val" id="road-avg-vol-west">-</span>
-                        </div>
-                        <div class="comp-stat-item">
-                            <span class="comp-stat-label">Heavy Cargo %:</span>
-                            <span class="comp-stat-val" id="road-avg-heavy-west">-</span>
-                        </div>
-                        <div class="comp-stat-item">
-                            <span class="comp-stat-label">Avg Speed (Disp):</span>
-                            <span class="comp-stat-val" id="road-avg-speed-west">-</span>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- SQLite Transaction Logs Table -->
-            <section class="glass-panel database-table-card">
-                <div class="db-table-header">
-                    <div class="table-header-left">
-                        <span class="table-title">🗃️ SQLite Event Transaction History</span>
-                        <span class="table-subtitle">Live database logs updated automatically on AI camera inference</span>
-                    </div>
-                    <button class="btn-placeholder-action sync-btn" onclick="fetchAnalyticsDashboard()">
-                        🔄 REFRESH DATABASE METRICS
-                    </button>
-                </div>
-
-                <div class="table-responsive-wrapper">
-                    <table class="sql-logs-table">
-                        <thead>
-                            <tr>
-                                <th>TRANSACTION ID</th>
-                                <th>TIMESTAMP</th>
-                                <th>ROAD DIRECTION</th>
-                                <th>VEHICLES DETECTED</th>
-                                <th>TRAFFIC DENSITY ratio</th>
-                                <th>INPUT SOURCE</th>
-                            </tr>
-                        </thead>
-                        <tbody id="logs-table-body">
-                            <tr>
-                                <td colspan="6" class="table-empty-row">INITIALIZING SQL TELEMETRY LOGGER...</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </section>
-
         </div>
 
 

@@ -1,0 +1,957 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Traffic Control Dashboard - College Project</title>
+    <!-- Importing modern futuristic typography -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <!-- Link to external stylesheet -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div class="container">
+        
+        <!-- Header -->
+        <header class="glass-panel">
+            <div class="header-title-container">
+                <h1 class="header-title">Smart Traffic Control System</h1>
+                <div class="header-subtitle">AI-Based Adaptive Signal Management</div>
+            </div>
+            
+            <div class="system-meta">
+                <div class="meta-tag glass-panel">
+                    <span class="label">STATUS:</span>
+                    <span class="value" id="system-status">ACTIVE</span>
+                </div>
+                <div class="meta-tag glass-panel">
+                    <span class="label">AI ENGINE:</span>
+                    <span class="value" id="ai-engine-value">YOLOv8s</span>
+                </div>
+                <div class="system-meta-item meta-tag glass-panel">
+                    <span class="label">LATENCY:</span>
+                    <span class="value">14ms</span>
+                </div>
+                <div class="meta-tag glass-panel">
+                    <span class="label">SYS TIME:</span>
+                    <span class="value" id="sys-time">16:59:00</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Navigation Bar -->
+        <nav class="nav-container">
+            <button id="nav-btn-dashboard" class="btn-nav active" onclick="switchTab('dashboard')">
+                <span>📊</span> Main Dashboard
+            </button>
+            <button id="nav-btn-images" class="btn-nav" onclick="switchTab('images')">
+                <span>📷</span> Image Upload Portal
+            </button>
+            <button id="nav-btn-videos" class="btn-nav" onclick="switchTab('videos')">
+                <span>📹</span> Video & Live Portal
+            </button>
+            <button id="nav-btn-analytics" class="btn-nav" onclick="switchTab('analytics')">
+                <span>📈</span> Performance & Analytics
+            </button>
+        </nav>
+
+        <!-- ==================== TAB 1: DASHBOARD ==================== -->
+        <div id="tab-dashboard" class="tab-content active-tab">
+            
+            <!-- Traffic Density Section (4 Roads Telemetry) -->
+            <section class="density-grid">
+                
+                <!-- North Road Status Card -->
+                <div id="card-north" class="glass-panel road-card dashboard-road-card state-red">
+                    <div class="road-card-header">
+                        <span class="road-name">NORTH ROAD</span>
+                        <span id="badge-north" class="road-signal-badge badge-red">🔴 RED</span>
+                    </div>
+
+                    <!-- Camera Feed Box directly on Dashboard -->
+                    <div class="video-feed-container" id="feed-container-north">
+                        <video id="video-north" class="road-video" loop muted playsinline></video>
+                        <img id="image-north" class="road-image" alt="Traffic Feed Image">
+                        <div class="video-overlay" id="overlay-north"></div>
+                        <button id="btn-remove-north" class="btn-remove-video" onclick="event.stopPropagation(); removeVideoFeed('north')">×</button>
+                        <div class="video-placeholder" id="placeholder-north">
+                            <span class="cam-icon" id="cam-icon-north">📹</span>
+                            <span class="placeholder-text" id="placeholder-text-north">SELECT TRAFFIC FEED INPUT</span>
+                            <div class="video-placeholder-actions">
+                                <button class="btn-placeholder-action" onclick="event.stopPropagation(); triggerVideoUpload('north')">📹 VIDEO</button>
+                                <button class="btn-placeholder-action" onclick="event.stopPropagation(); triggerPhotoUpload('north')">📷 PHOTO</button>
+                                <button class="btn-placeholder-action" onclick="event.stopPropagation(); startLiveFeed('north')">🔴 LIVE</button>
+                            </div>
+                        </div>
+                    </div>
+                    <input type="file" id="file-video-north" class="video-file-input" accept="video/*" onchange="handleVideoSelected('north', event)">
+                    <input type="file" id="file-photo-north" class="video-file-input" accept="image/*" onchange="handlePhotoSelected('north', event)">
+
+                    <div class="road-vehicle-count">
+                        <span id="count-north">0</span>
+                        <span class="unit">Vehicles</span>
+                    </div>
+                    <div class="road-footer">
+                        <span id="density-north" class="density-badge density-medium">MEDIUM</span>
+                    </div>
+                </div>
+
+                <!-- South Road Status Card -->
+                <div id="card-south" class="glass-panel road-card dashboard-road-card state-red">
+                    <div class="road-card-header">
+                        <span class="road-name">SOUTH ROAD</span>
+                        <span id="badge-south" class="road-signal-badge badge-red">🔴 RED</span>
+                    </div>
+
+                    <!-- Camera Feed Box directly on Dashboard -->
+                    <div class="video-feed-container" id="feed-container-south">
+                        <video id="video-south" class="road-video" loop muted playsinline></video>
+                        <img id="image-south" class="road-image" alt="Traffic Feed Image">
+                        <div class="video-overlay" id="overlay-south"></div>
+                        <button id="btn-remove-south" class="btn-remove-video" onclick="event.stopPropagation(); removeVideoFeed('south')">×</button>
+                        <div class="video-placeholder" id="placeholder-south">
+                            <span class="cam-icon" id="cam-icon-south">📹</span>
+                            <span class="placeholder-text" id="placeholder-text-south">SELECT TRAFFIC FEED INPUT</span>
+                            <div class="video-placeholder-actions">
+                                <button class="btn-placeholder-action" onclick="event.stopPropagation(); triggerVideoUpload('south')">📹 VIDEO</button>
+                                <button class="btn-placeholder-action" onclick="event.stopPropagation(); triggerPhotoUpload('south')">📷 PHOTO</button>
+                                <button class="btn-placeholder-action" onclick="event.stopPropagation(); startLiveFeed('south')">🔴 LIVE</button>
+                            </div>
+                        </div>
+                    </div>
+                    <input type="file" id="file-video-south" class="video-file-input" accept="video/*" onchange="handleVideoSelected('south', event)">
+                    <input type="file" id="file-photo-south" class="video-file-input" accept="image/*" onchange="handlePhotoSelected('south', event)">
+
+                    <div class="road-vehicle-count">
+                        <span id="count-south">0</span>
+                        <span class="unit">Vehicles</span>
+                    </div>
+                    <div class="road-footer">
+                        <span id="density-south" class="density-badge density-low">LOW</span>
+                    </div>
+                </div>
+
+                <!-- East Road Status Card -->
+                <div id="card-east" class="glass-panel road-card dashboard-road-card state-green">
+                    <div class="road-card-header">
+                        <span class="road-name">EAST ROAD</span>
+                        <span id="badge-east" class="road-signal-badge badge-green">🟢 GREEN</span>
+                    </div>
+
+                    <!-- Camera Feed Box directly on Dashboard -->
+                    <div class="video-feed-container" id="feed-container-east">
+                        <video id="video-east" class="road-video" loop muted playsinline></video>
+                        <img id="image-east" class="road-image" alt="Traffic Feed Image">
+                        <div class="video-overlay" id="overlay-east"></div>
+                        <button id="btn-remove-east" class="btn-remove-video" onclick="event.stopPropagation(); removeVideoFeed('east')">×</button>
+                        <div class="video-placeholder" id="placeholder-east">
+                            <span class="cam-icon" id="cam-icon-east">📹</span>
+                            <span class="placeholder-text" id="placeholder-text-east">SELECT TRAFFIC FEED INPUT</span>
+                            <div class="video-placeholder-actions">
+                                <button class="btn-placeholder-action" onclick="event.stopPropagation(); triggerVideoUpload('east')">📹 VIDEO</button>
+                                <button class="btn-placeholder-action" onclick="event.stopPropagation(); triggerPhotoUpload('east')">📷 PHOTO</button>
+                                <button class="btn-placeholder-action" onclick="event.stopPropagation(); startLiveFeed('east')">🔴 LIVE</button>
+                            </div>
+                        </div>
+                    </div>
+                    <input type="file" id="file-video-east" class="video-file-input" accept="video/*" onchange="handleVideoSelected('east', event)">
+                    <input type="file" id="file-photo-east" class="video-file-input" accept="image/*" onchange="handlePhotoSelected('east', event)">
+
+                    <div class="road-vehicle-count">
+                        <span id="count-east">0</span>
+                        <span class="unit">Vehicles</span>
+                    </div>
+                    <div class="road-footer">
+                        <span id="density-east" class="density-badge density-high">HIGH</span>
+                    </div>
+                </div>
+
+                <!-- West Road Status Card -->
+                <div id="card-west" class="glass-panel road-card dashboard-road-card state-red">
+                    <div class="road-card-header">
+                        <span class="road-name">WEST ROAD</span>
+                        <span id="badge-west" class="road-signal-badge badge-red">🔴 RED</span>
+                    </div>
+
+                    <!-- Camera Feed Box directly on Dashboard -->
+                    <div class="video-feed-container" id="feed-container-west">
+                        <video id="video-west" class="road-video" loop muted playsinline></video>
+                        <img id="image-west" class="road-image" alt="Traffic Feed Image">
+                        <div class="video-overlay" id="overlay-west"></div>
+                        <button id="btn-remove-west" class="btn-remove-video" onclick="event.stopPropagation(); removeVideoFeed('west')">×</button>
+                        <div class="video-placeholder" id="placeholder-west">
+                            <span class="cam-icon" id="cam-icon-west">📹</span>
+                            <span class="placeholder-text" id="placeholder-text-west">SELECT TRAFFIC FEED INPUT</span>
+                            <div class="video-placeholder-actions">
+                                <button class="btn-placeholder-action" onclick="event.stopPropagation(); triggerVideoUpload('west')">📹 VIDEO</button>
+                                <button class="btn-placeholder-action" onclick="event.stopPropagation(); triggerPhotoUpload('west')">📷 PHOTO</button>
+                                <button class="btn-placeholder-action" onclick="event.stopPropagation(); startLiveFeed('west')">🔴 LIVE</button>
+                            </div>
+                        </div>
+                    </div>
+                    <input type="file" id="file-video-west" class="video-file-input" accept="video/*" onchange="handleVideoSelected('west', event)">
+                    <input type="file" id="file-photo-west" class="video-file-input" accept="image/*" onchange="handlePhotoSelected('west', event)">
+
+                    <div class="road-vehicle-count">
+                        <span id="count-west">0</span>
+                        <span class="unit">Vehicles</span>
+                    </div>
+                    <div class="road-footer">
+                        <span id="density-west" class="density-badge density-low">LOW</span>
+                    </div>
+                </div>
+
+            </section>
+
+            <!-- Main Dashboard Core (Split into 3 panels) -->
+            <main class="main-dashboard-grid">
+                
+                <!-- Column 1: Live Actions Panel -->
+                <div class="dashboard-col">
+                    <div class="glass-panel control-panel-card">
+                        <div class="panel-title">
+                            <span>CONTROL ROOM PANEL</span>
+                            <span style="font-size: 0.7rem; color: var(--accent-cyan); text-transform: uppercase;">Live Actions</span>
+                        </div>
+
+                        <div class="control-row" style="margin-top: 4px;">
+                            <label>SYSTEM OPERATING MODE</label>
+                            <div class="mode-toggle-group">
+                                <button id="btn-mode-adaptive" class="btn-mode active" onclick="setSystemMode('adaptive')">ADAPTIVE AI</button>
+                                <button id="btn-mode-manual" class="btn-mode" onclick="setSystemMode('manual')">MANUAL CONTROL</button>
+                            </div>
+                        </div>
+
+                        <div class="control-row" style="margin-top: 8px;">
+                            <label>AI INFERENCE ENGINE</label>
+                            <div class="mode-toggle-group">
+                                <button id="btn-model-base" class="btn-mode active" onclick="setInferenceModel('base')">PRETRAINED COCO</button>
+                                <button id="btn-model-custom" class="btn-mode" onclick="setInferenceModel('custom')">CUSTOM TRAINED</button>
+                            </div>
+                        </div>
+
+                        <div class="control-row" style="margin-top: 4px;">
+                            <label>MANUAL TRAFFIC SIGNAL OVERRIDE</label>
+                            <div class="manual-grid">
+                                <button id="btn-man-north" class="btn-manual-signal" onclick="manualSignalOverride('north')" disabled>NORTH</button>
+                                <button id="btn-man-south" class="btn-manual-signal" onclick="manualSignalOverride('south')" disabled>SOUTH</button>
+                                <button id="btn-man-east" class="btn-manual-signal" onclick="manualSignalOverride('east')" disabled>EAST</button>
+                                <button id="btn-man-west" class="btn-manual-signal" onclick="manualSignalOverride('west')" disabled>WEST</button>
+                            </div>
+                        </div>
+
+                        <div class="control-row" style="margin-top: 4px;">
+                            <label>EMERGENCY AMBULANCE OVERRIDE</label>
+                            <div class="ambulance-selector-grid">
+                                <button id="btn-amb-north" class="btn-amb-dir" onclick="triggerAmbulance('north')">NORTH</button>
+                                <button id="btn-amb-south" class="btn-amb-dir" onclick="triggerAmbulance('south')">SOUTH</button>
+                                <button id="btn-amb-east" class="btn-amb-dir" onclick="triggerAmbulance('east')">EAST</button>
+                                <button id="btn-amb-west" class="btn-amb-dir" onclick="triggerAmbulance('west')">WEST</button>
+                                <button id="btn-amb-reset" class="btn-reset-override" onclick="clearAmbulance()">DISABLE EMERGENCY STATE</button>
+                            </div>
+                        </div>
+
+                        <div class="simulation-info-notes">
+                            <strong>Dashboard Notes:</strong><br>
+                            • <strong>Multi-Page Feeds:</strong> Switch tabs above to upload test photos or start live camera detection streams for individual road lanes.<br>
+                            • <strong>Manual Override:</strong> Enable "Manual Control" to lock countdowns and select active green lanes manually.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Column 2: Center Signal Decision (Traffic Light UI) -->
+                <div class="dashboard-col">
+                    <div class="glass-panel decision-card">
+                        <span class="decision-title">Current Green Signal</span>
+                        
+                        <div id="display-green-road" class="active-road-display green-active">
+                            EAST ROAD
+                        </div>
+
+                        <!-- Realistic Traffic Light UI -->
+                        <div class="traffic-light-container">
+                            <div id="light-red" class="traffic-light-bulb"></div>
+                            <div id="light-yellow" class="traffic-light-bulb"></div>
+                            <div id="light-green" class="traffic-light-bulb active"></div>
+                        </div>
+
+                        <span style="font-size: 0.75rem; color: var(--text-secondary); text-transform: uppercase; font-weight: 500; letter-spacing: 0.05em;">
+                            Signal Allocation: <span id="signal-allocation-type" style="color: var(--signal-green); font-weight: 700;">ADAPTIVE</span>
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Column 3: Priority & Emergency Overrides -->
+                <div class="dashboard-col">
+                    
+                    <!-- Priority Decision Details -->
+                    <div class="glass-panel priority-card">
+                        <div>
+                            <div class="priority-row">
+                                <span class="priority-label">Highest Traffic Direction</span>
+                                <span id="val-highest-traffic" class="priority-value accent">EAST ROAD</span>
+                            </div>
+                            <div class="priority-row">
+                                <span class="priority-label">Next Green Direction</span>
+                                <span id="val-next-green" class="priority-value accent">NORTH ROAD</span>
+                            </div>
+                        </div>
+
+                        <div class="timer-container">
+                            <div class="timer-circle-wrap">
+                                <svg class="timer-svg">
+                                    <circle class="timer-track-circle" cx="60" cy="60" r="54"></circle>
+                                    <circle id="timer-indicator-circle" class="timer-fill-circle" cx="60" cy="60" r="54"></circle>
+                                </svg>
+                                <div class="timer-text-container">
+                                    <div id="timer-text" class="timer-number">30</div>
+                                    <div class="timer-unit">Seconds</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Ambulance Priority Card -->
+                    <div id="emergency-banner" class="glass-panel emergency-card">
+                        <div class="emergency-header">
+                            <span class="emergency-icon">🚑</span>
+                            <span>AMBULANCE STATUS</span>
+                        </div>
+
+                        <div id="emergency-status" class="emergency-status-text no-emergency">
+                            NO AMBULANCE DETECTED
+                        </div>
+
+                        <div id="emergency-desc" class="emergency-details">
+                            System monitoring active for emergency transponders. Automatic override is currently idle.
+                        </div>
+                    </div>
+
+                </div>
+
+            </main>
+        </div>
+
+        <!-- ==================== TAB 2: IMAGE UPLOADS ==================== -->
+        <div id="tab-images" class="tab-content">
+            <div class="media-grid">
+                
+                <!-- North Road Image -->
+                <div class="glass-panel road-card media-upload-card">
+                    <div class="road-card-header">
+                        <span class="road-name">NORTH ROAD - PHOTO DETECTION</span>
+                        <span id="img-badge-north" class="road-signal-badge badge-red">🔴 RED</span>
+                    </div>
+                    
+                    <div class="video-feed-container" id="img-feed-container-north">
+                        <img id="image-img-north" class="road-image" alt="Traffic Photo Feed">
+                        <div class="video-overlay" id="img-overlay-north"></div>
+                        <button id="btn-remove-img-north" class="btn-remove-video" onclick="event.stopPropagation(); removeVideoFeed('north')">×</button>
+                        <div class="video-placeholder" id="img-placeholder-north" onclick="triggerPhotoUpload('north')">
+                            <span class="cam-icon">📷</span>
+                            <span>CLICK TO UPLOAD TRAFFIC PHOTO</span>
+                        </div>
+                    </div>
+                    <input type="file" id="file-photo-img-north" class="video-file-input" accept="image/*" onchange="handlePhotoSelected('north', event)">
+
+                    <div class="road-footer">
+                        <div class="road-vehicle-count" style="margin-bottom:0;">
+                            <span id="img-count-north" style="font-size: 1.8rem;">0</span>
+                            <span class="unit">Vehicles</span>
+                        </div>
+                        <div class="road-heavy-count" style="font-size: 0.72rem; color: var(--text-secondary); margin-top: 4px; margin-bottom: 0;">
+                            🚛 Heavy Vehicles: <span id="img-heavy-north">0</span>
+                        </div>
+                        <div class="road-fast-count" style="font-size: 0.72rem; color: var(--text-secondary); margin-top: 4px; margin-bottom: 0;">
+                            ⚡ Fast-Moving Vehicles: <span id="img-fast-north">0</span>
+                        </div>
+                        <span id="img-density-north" class="density-badge density-medium">MEDIUM</span>
+                    </div>
+                </div>
+
+                <!-- South Road Image -->
+                <div class="glass-panel road-card media-upload-card">
+                    <div class="road-card-header">
+                        <span class="road-name">SOUTH ROAD - PHOTO DETECTION</span>
+                        <span id="img-badge-south" class="road-signal-badge badge-red">🔴 RED</span>
+                    </div>
+                    
+                    <div class="video-feed-container" id="img-feed-container-south">
+                        <img id="image-img-south" class="road-image" alt="Traffic Photo Feed">
+                        <div class="video-overlay" id="img-overlay-south"></div>
+                        <button id="btn-remove-img-south" class="btn-remove-video" onclick="event.stopPropagation(); removeVideoFeed('south')">×</button>
+                        <div class="video-placeholder" id="img-placeholder-south" onclick="triggerPhotoUpload('south')">
+                            <span class="cam-icon">📷</span>
+                            <span>CLICK TO UPLOAD TRAFFIC PHOTO</span>
+                        </div>
+                    </div>
+                    <input type="file" id="file-photo-img-south" class="video-file-input" accept="image/*" onchange="handlePhotoSelected('south', event)">
+
+                    <div class="road-footer">
+                        <div class="road-vehicle-count" style="margin-bottom:0;">
+                            <span id="img-count-south" style="font-size: 1.8rem;">0</span>
+                            <span class="unit">Vehicles</span>
+                        </div>
+                        <div class="road-heavy-count" style="font-size: 0.72rem; color: var(--text-secondary); margin-top: 4px; margin-bottom: 0;">
+                            🚛 Heavy Vehicles: <span id="img-heavy-south">0</span>
+                        </div>
+                        <div class="road-fast-count" style="font-size: 0.72rem; color: var(--text-secondary); margin-top: 4px; margin-bottom: 0;">
+                            ⚡ Fast-Moving Vehicles: <span id="img-fast-south">0</span>
+                        </div>
+                        <span id="img-density-south" class="density-badge density-low">LOW</span>
+                    </div>
+                </div>
+
+                <!-- East Road Image -->
+                <div class="glass-panel road-card media-upload-card">
+                    <div class="road-card-header">
+                        <span class="road-name">EAST ROAD - PHOTO DETECTION</span>
+                        <span id="img-badge-east" class="road-signal-badge badge-green">🟢 GREEN</span>
+                    </div>
+                    
+                    <div class="video-feed-container" id="img-feed-container-east">
+                        <img id="image-img-east" class="road-image" alt="Traffic Photo Feed">
+                        <div class="video-overlay" id="img-overlay-east"></div>
+                        <button id="btn-remove-img-east" class="btn-remove-video" onclick="event.stopPropagation(); removeVideoFeed('east')">×</button>
+                        <div class="video-placeholder" id="img-placeholder-east" onclick="triggerPhotoUpload('east')">
+                            <span class="cam-icon">📷</span>
+                            <span>CLICK TO UPLOAD TRAFFIC PHOTO</span>
+                        </div>
+                    </div>
+                    <input type="file" id="file-photo-img-east" class="video-file-input" accept="image/*" onchange="handlePhotoSelected('east', event)">
+
+                    <div class="road-footer">
+                        <div class="road-vehicle-count" style="margin-bottom:0;">
+                            <span id="img-count-east" style="font-size: 1.8rem;">0</span>
+                            <span class="unit">Vehicles</span>
+                        </div>
+                        <div class="road-heavy-count" style="font-size: 0.72rem; color: var(--text-secondary); margin-top: 4px; margin-bottom: 0;">
+                            🚛 Heavy Vehicles: <span id="img-heavy-east">0</span>
+                        </div>
+                        <div class="road-fast-count" style="font-size: 0.72rem; color: var(--text-secondary); margin-top: 4px; margin-bottom: 0;">
+                            ⚡ Fast-Moving Vehicles: <span id="img-fast-east">0</span>
+                        </div>
+                        <span id="img-density-east" class="density-badge density-high">HIGH</span>
+                    </div>
+                </div>
+
+                <!-- West Road Image -->
+                <div class="glass-panel road-card media-upload-card">
+                    <div class="road-card-header">
+                        <span class="road-name">WEST ROAD - PHOTO DETECTION</span>
+                        <span id="img-badge-west" class="road-signal-badge badge-red">🔴 RED</span>
+                    </div>
+                    
+                    <div class="video-feed-container" id="img-feed-container-west">
+                        <img id="image-img-west" class="road-image" alt="Traffic Photo Feed">
+                        <div class="video-overlay" id="img-overlay-west"></div>
+                        <button id="btn-remove-img-west" class="btn-remove-video" onclick="event.stopPropagation(); removeVideoFeed('west')">×</button>
+                        <div class="video-placeholder" id="img-placeholder-west" onclick="triggerPhotoUpload('west')">
+                            <span class="cam-icon">📷</span>
+                            <span>CLICK TO UPLOAD TRAFFIC PHOTO</span>
+                        </div>
+                    </div>
+                    <input type="file" id="file-photo-img-west" class="video-file-input" accept="image/*" onchange="handlePhotoSelected('west', event)">
+
+                    <div class="road-footer">
+                        <div class="road-vehicle-count" style="margin-bottom:0;">
+                            <span id="img-count-west" style="font-size: 1.8rem;">0</span>
+                            <span class="unit">Vehicles</span>
+                        </div>
+                        <div class="road-heavy-count" style="font-size: 0.72rem; color: var(--text-secondary); margin-top: 4px; margin-bottom: 0;">
+                            🚛 Heavy Vehicles: <span id="img-heavy-west">0</span>
+                        </div>
+                        <div class="road-fast-count" style="font-size: 0.72rem; color: var(--text-secondary); margin-top: 4px; margin-bottom: 0;">
+                            ⚡ Fast-Moving Vehicles: <span id="img-fast-west">0</span>
+                        </div>
+                        <span id="img-density-west" class="density-badge density-low">LOW</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ==================== TAB 3: VIDEO & LIVE PORTALS ==================== -->
+        <div id="tab-videos" class="tab-content">
+            <div class="media-grid">
+                
+                <!-- North Road Video -->
+                <div class="glass-panel road-card media-upload-card">
+                    <div class="road-card-header">
+                        <span class="road-name">NORTH ROAD - VIDEO / LIVE STREAM</span>
+                        <span id="vid-badge-north" class="road-signal-badge badge-red">🔴 RED</span>
+                    </div>
+                    
+                    <div class="video-feed-container" id="vid-feed-container-north">
+                        <video id="vid-video-north" class="road-video" loop muted playsinline></video>
+                        <div class="video-overlay" id="vid-overlay-north"></div>
+                        <button id="btn-remove-vid-north" class="btn-remove-video" onclick="event.stopPropagation(); removeVideoFeed('north')">×</button>
+                        <div class="video-placeholder" id="vid-placeholder-north">
+                            <span class="cam-icon">📹</span>
+                            <span>SELECT INPUT STREAM</span>
+                            <div class="video-placeholder-actions">
+                                <button class="btn-placeholder-action" onclick="event.stopPropagation(); triggerVideoUpload('north')">📹 VIDEO</button>
+                                <button class="btn-placeholder-action" onclick="event.stopPropagation(); startLiveFeed('north')">🔴 LIVE</button>
+                            </div>
+                        </div>
+                    </div>
+                    <input type="file" id="file-video-vid-north" class="video-file-input" accept="video/*" onchange="handleVideoSelected('north', event)">
+
+                    <!-- Dynamic Server-Side Video Analytics Report -->
+                    <div class="video-analytics-report" id="vid-analytics-report-north" style="display: none;">
+                        <div class="analytics-title">🔍 Server-Side Deep Video Analytics</div>
+                        <div class="analytics-status">
+                            <span>Status:</span> <span id="vid-status-north" class="status-val text-idle">Idle</span>
+                        </div>
+                        <div class="analytics-grid" id="vid-analytics-grid-north" style="display: none;">
+                            <div class="analytics-item">
+                                <span class="analytics-label">Total Unique:</span>
+                                <span class="analytics-value" id="vid-stat-total-north">-</span>
+                            </div>
+                            <div class="analytics-item">
+                                <span class="analytics-label">Traffic Density:</span>
+                                <span class="analytics-value" id="vid-stat-density-north">-</span>
+                            </div>
+                            <div class="analytics-item">
+                                <span class="analytics-label">Avg Confidence:</span>
+                                <span class="analytics-value" id="vid-stat-conf-north">-</span>
+                            </div>
+                            <div class="analytics-item">
+                                <span class="analytics-label">Fast-Moving:</span>
+                                <span class="analytics-value" id="vid-stat-fast-north">-</span>
+                            </div>
+                            <div class="class-breakdown-box">
+                                <span class="analytics-label">Vehicle Types Count:</span>
+                                <div class="class-breakdown-tags" id="vid-class-tags-north"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="road-footer">
+                        <div class="road-vehicle-count" style="margin-bottom:0;">
+                            <span id="vid-count-north" style="font-size: 1.8rem;">0</span>
+                            <span class="unit">Vehicles</span>
+                        </div>
+                        <div class="road-heavy-count" style="font-size: 0.72rem; color: var(--text-secondary); margin-top: 4px; margin-bottom: 0;">
+                            🚛 Heavy Vehicles: <span id="vid-heavy-north">0</span>
+                        </div>
+                        <div class="road-fast-count" style="font-size: 0.72rem; color: var(--text-secondary); margin-top: 4px; margin-bottom: 0;">
+                            ⚡ Fast-Moving Vehicles: <span id="vid-fast-north">0</span>
+                        </div>
+                        <span id="vid-density-north" class="density-badge density-medium">MEDIUM</span>
+                    </div>
+                </div>
+
+                <!-- South Road Video -->
+                <div class="glass-panel road-card media-upload-card">
+                    <div class="road-card-header">
+                        <span class="road-name">SOUTH ROAD - VIDEO / LIVE STREAM</span>
+                        <span id="vid-badge-south" class="road-signal-badge badge-red">🔴 RED</span>
+                    </div>
+                    
+                    <div class="video-feed-container" id="vid-feed-container-south">
+                        <video id="vid-video-south" class="road-video" loop muted playsinline></video>
+                        <div class="video-overlay" id="vid-overlay-south"></div>
+                        <button id="btn-remove-vid-south" class="btn-remove-video" onclick="event.stopPropagation(); removeVideoFeed('south')">×</button>
+                        <div class="video-placeholder" id="vid-placeholder-south">
+                            <span class="cam-icon">📹</span>
+                            <span>SELECT INPUT STREAM</span>
+                            <div class="video-placeholder-actions">
+                                <button class="btn-placeholder-action" onclick="event.stopPropagation(); triggerVideoUpload('south')">📹 VIDEO</button>
+                                <button class="btn-placeholder-action" onclick="event.stopPropagation(); startLiveFeed('south')">🔴 LIVE</button>
+                            </div>
+                        </div>
+                    </div>
+                    <input type="file" id="file-video-vid-south" class="video-file-input" accept="video/*" onchange="handleVideoSelected('south', event)">
+
+                    <!-- Dynamic Server-Side Video Analytics Report -->
+                    <div class="video-analytics-report" id="vid-analytics-report-south" style="display: none;">
+                        <div class="analytics-title">🔍 Server-Side Deep Video Analytics</div>
+                        <div class="analytics-status">
+                            <span>Status:</span> <span id="vid-status-south" class="status-val text-idle">Idle</span>
+                        </div>
+                        <div class="analytics-grid" id="vid-analytics-grid-south" style="display: none;">
+                            <div class="analytics-item">
+                                <span class="analytics-label">Total Unique:</span>
+                                <span class="analytics-value" id="vid-stat-total-south">-</span>
+                            </div>
+                            <div class="analytics-item">
+                                <span class="analytics-label">Traffic Density:</span>
+                                <span class="analytics-value" id="vid-stat-density-south">-</span>
+                            </div>
+                            <div class="analytics-item">
+                                <span class="analytics-label">Avg Confidence:</span>
+                                <span class="analytics-value" id="vid-stat-conf-south">-</span>
+                            </div>
+                            <div class="analytics-item">
+                                <span class="analytics-label">Fast-Moving:</span>
+                                <span class="analytics-value" id="vid-stat-fast-south">-</span>
+                            </div>
+                            <div class="class-breakdown-box">
+                                <span class="analytics-label">Vehicle Types Count:</span>
+                                <div class="class-breakdown-tags" id="vid-class-tags-south"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="road-footer">
+                        <div class="road-vehicle-count" style="margin-bottom:0;">
+                            <span id="vid-count-south" style="font-size: 1.8rem;">0</span>
+                            <span class="unit">Vehicles</span>
+                        </div>
+                        <div class="road-heavy-count" style="font-size: 0.72rem; color: var(--text-secondary); margin-top: 4px; margin-bottom: 0;">
+                            🚛 Heavy Vehicles: <span id="vid-heavy-south">0</span>
+                        </div>
+                        <div class="road-fast-count" style="font-size: 0.72rem; color: var(--text-secondary); margin-top: 4px; margin-bottom: 0;">
+                            ⚡ Fast-Moving Vehicles: <span id="vid-fast-south">0</span>
+                        </div>
+                        <span id="vid-density-south" class="density-badge density-low">LOW</span>
+                    </div>
+                </div>
+
+                <!-- East Road Video -->
+                <div class="glass-panel road-card media-upload-card">
+                    <div class="road-card-header">
+                        <span class="road-name">EAST ROAD - VIDEO / LIVE STREAM</span>
+                        <span id="vid-badge-east" class="road-signal-badge badge-green">🟢 GREEN</span>
+                    </div>
+                    
+                    <div class="video-feed-container" id="vid-feed-container-east">
+                        <video id="vid-video-east" class="road-video" loop muted playsinline></video>
+                        <div class="video-overlay" id="vid-overlay-east"></div>
+                        <button id="btn-remove-vid-east" class="btn-remove-video" onclick="event.stopPropagation(); removeVideoFeed('east')">×</button>
+                        <div class="video-placeholder" id="vid-placeholder-east">
+                            <span class="cam-icon">📹</span>
+                            <span>SELECT INPUT STREAM</span>
+                            <div class="video-placeholder-actions">
+                                <button class="btn-placeholder-action" onclick="event.stopPropagation(); triggerVideoUpload('east')">📹 VIDEO</button>
+                                <button class="btn-placeholder-action" onclick="event.stopPropagation(); startLiveFeed('east')">🔴 LIVE</button>
+                            </div>
+                        </div>
+                    </div>
+                    <input type="file" id="file-video-vid-east" class="video-file-input" accept="video/*" onchange="handleVideoSelected('east', event)">
+
+                    <!-- Dynamic Server-Side Video Analytics Report -->
+                    <div class="video-analytics-report" id="vid-analytics-report-east" style="display: none;">
+                        <div class="analytics-title">🔍 Server-Side Deep Video Analytics</div>
+                        <div class="analytics-status">
+                            <span>Status:</span> <span id="vid-status-east" class="status-val text-idle">Idle</span>
+                        </div>
+                        <div class="analytics-grid" id="vid-analytics-grid-east" style="display: none;">
+                            <div class="analytics-item">
+                                <span class="analytics-label">Total Unique:</span>
+                                <span class="analytics-value" id="vid-stat-total-east">-</span>
+                            </div>
+                            <div class="analytics-item">
+                                <span class="analytics-label">Traffic Density:</span>
+                                <span class="analytics-value" id="vid-stat-density-east">-</span>
+                            </div>
+                            <div class="analytics-item">
+                                <span class="analytics-label">Avg Confidence:</span>
+                                <span class="analytics-value" id="vid-stat-conf-east">-</span>
+                            </div>
+                            <div class="analytics-item">
+                                <span class="analytics-label">Fast-Moving:</span>
+                                <span class="analytics-value" id="vid-stat-fast-east">-</span>
+                            </div>
+                            <div class="class-breakdown-box">
+                                <span class="analytics-label">Vehicle Types Count:</span>
+                                <div class="class-breakdown-tags" id="vid-class-tags-east"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="road-footer">
+                        <div class="road-vehicle-count" style="margin-bottom:0;">
+                            <span id="vid-count-east" style="font-size: 1.8rem;">0</span>
+                            <span class="unit">Vehicles</span>
+                        </div>
+                        <div class="road-heavy-count" style="font-size: 0.72rem; color: var(--text-secondary); margin-top: 4px; margin-bottom: 0;">
+                            🚛 Heavy Vehicles: <span id="vid-heavy-east">0</span>
+                        </div>
+                        <div class="road-fast-count" style="font-size: 0.72rem; color: var(--text-secondary); margin-top: 4px; margin-bottom: 0;">
+                            ⚡ Fast-Moving Vehicles: <span id="vid-fast-east">0</span>
+                        </div>
+                        <span id="vid-density-east" class="density-badge density-high">HIGH</span>
+                    </div>
+                </div>
+
+                <!-- West Road Video -->
+                <div class="glass-panel road-card media-upload-card">
+                    <div class="road-card-header">
+                        <span class="road-name">WEST ROAD - VIDEO / LIVE STREAM</span>
+                        <span id="vid-badge-west" class="road-signal-badge badge-red">🔴 RED</span>
+                    </div>
+                    
+                    <div class="video-feed-container" id="vid-feed-container-west">
+                        <video id="vid-video-west" class="road-video" loop muted playsinline></video>
+                        <div class="video-overlay" id="vid-overlay-west"></div>
+                        <button id="btn-remove-vid-west" class="btn-remove-video" onclick="event.stopPropagation(); removeVideoFeed('west')">×</button>
+                        <div class="video-placeholder" id="vid-placeholder-west">
+                            <span class="cam-icon">📹</span>
+                            <span>SELECT INPUT STREAM</span>
+                            <div class="video-placeholder-actions">
+                                <button class="btn-placeholder-action" onclick="event.stopPropagation(); triggerVideoUpload('west')">📹 VIDEO</button>
+                                <button class="btn-placeholder-action" onclick="event.stopPropagation(); startLiveFeed('west')">🔴 LIVE</button>
+                            </div>
+                        </div>
+                    </div>
+                    <input type="file" id="file-video-vid-west" class="video-file-input" accept="video/*" onchange="handleVideoSelected('west', event)">
+
+                    <!-- Dynamic Server-Side Video Analytics Report -->
+                    <div class="video-analytics-report" id="vid-analytics-report-west" style="display: none;">
+                        <div class="analytics-title">🔍 Server-Side Deep Video Analytics</div>
+                        <div class="analytics-status">
+                            <span>Status:</span> <span id="vid-status-west" class="status-val text-idle">Idle</span>
+                        </div>
+                        <div class="analytics-grid" id="vid-analytics-grid-west" style="display: none;">
+                            <div class="analytics-item">
+                                <span class="analytics-label">Total Unique:</span>
+                                <span class="analytics-value" id="vid-stat-total-west">-</span>
+                            </div>
+                            <div class="analytics-item">
+                                <span class="analytics-label">Traffic Density:</span>
+                                <span class="analytics-value" id="vid-stat-density-west">-</span>
+                            </div>
+                            <div class="analytics-item">
+                                <span class="analytics-label">Avg Confidence:</span>
+                                <span class="analytics-value" id="vid-stat-conf-west">-</span>
+                            </div>
+                            <div class="analytics-item">
+                                <span class="analytics-label">Fast-Moving:</span>
+                                <span class="analytics-value" id="vid-stat-fast-west">-</span>
+                            </div>
+                            <div class="class-breakdown-box">
+                                <span class="analytics-label">Vehicle Types Count:</span>
+                                <div class="class-breakdown-tags" id="vid-class-tags-west"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="road-footer">
+                        <div class="road-vehicle-count" style="margin-bottom:0;">
+                            <span id="vid-count-west" style="font-size: 1.8rem;">0</span>
+                            <span class="unit">Vehicles</span>
+                        </div>
+                        <div class="road-heavy-count" style="font-size: 0.72rem; color: var(--text-secondary); margin-top: 4px; margin-bottom: 0;">
+                            🚛 Heavy Vehicles: <span id="vid-heavy-west">0</span>
+                        </div>
+                        <div class="road-fast-count" style="font-size: 0.72rem; color: var(--text-secondary); margin-top: 4px; margin-bottom: 0;">
+                            ⚡ Fast-Moving Vehicles: <span id="vid-fast-west">0</span>
+                        </div>
+                        <span id="vid-density-west" class="density-badge density-low">LOW</span>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ==================== TAB 4: PERFORMANCE & ANALYTICS ==================== -->
+        <div id="tab-analytics" class="tab-content">
+            
+            <!-- Summary Telemetry Row -->
+            <section class="analytics-summary-grid">
+                <div class="glass-panel analytics-summary-card">
+                    <div class="summary-card-icon">🗄️</div>
+                    <div class="summary-card-info">
+                        <span class="summary-label">Total Detections Logged</span>
+                        <span class="summary-val-large" id="db-stat-total-events">-</span>
+                        <span class="summary-desc">Active transactions in SQLite database</span>
+                    </div>
+                </div>
+                
+                <div class="glass-panel analytics-summary-card">
+                    <div class="summary-card-icon">📊</div>
+                    <div class="summary-card-info">
+                        <span class="summary-label">Average Road Density</span>
+                        <span class="summary-val-large" id="db-stat-avg-density">-</span>
+                        <span class="summary-desc">Aggregate congestion loading ratio</span>
+                    </div>
+                </div>
+                
+                <div class="glass-panel analytics-summary-card">
+                    <div class="summary-card-icon">🚑</div>
+                    <div class="summary-card-info">
+                        <span class="summary-label">Ambulances Prioritized</span>
+                        <span class="summary-val-large" id="db-stat-total-ambulances">-</span>
+                        <span class="summary-desc">Automatic emergency overrides logged</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Charting Dashboard Panels Grid -->
+            <section class="analytics-charts-grid">
+                
+                <!-- Weekly Traffic Averaging -->
+                <div class="glass-panel chart-panel-card">
+                    <div class="chart-card-header">
+                        <span class="chart-title">🗓️ Weekly Average Traffic Load</span>
+                        <span class="chart-subtitle">Average Vehicles by Day of the Week</span>
+                    </div>
+                    <div class="chart-content-wrap">
+                        <div class="css-bar-chart-vertical" id="weekly-trends-chart">
+                            <!-- Populated Dynamically by JS -->
+                            <div class="chart-loading-placeholder">LOADING DATABASE METRICS...</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hourly Peaks -->
+                <div class="glass-panel chart-panel-card">
+                    <div class="chart-card-header">
+                        <span class="chart-title">⏰ Peak Congestion Hours Trend</span>
+                        <span class="chart-subtitle">Hourly Average vehicle distribution (00:00 - 23:00)</span>
+                    </div>
+                    <div class="chart-content-wrap">
+                        <div class="css-bar-chart-horizontal" id="hourly-peaks-chart">
+                            <!-- Populated Dynamically by JS -->
+                            <div class="chart-loading-placeholder">LOADING DATABASE METRICS...</div>
+                        </div>
+                    </div>
+                </div>
+
+            </section>
+
+            <!-- Lane-wise Congestion Heatmap / Telemetry Card Row -->
+            <section class="analytics-roads-comparison-title">
+                🛣️ DIRECTIONAL LOAD ANALYSIS & HEATMAP
+            </section>
+            
+            <section class="analytics-roads-comparison-grid">
+                <!-- North Road Average -->
+                <div class="glass-panel road-comparison-card" id="road-comp-north">
+                    <div class="road-comp-header">
+                        <span class="road-comp-name">NORTH LANE</span>
+                        <span class="road-comp-dot dot-north"></span>
+                    </div>
+                    <div class="road-comp-stats">
+                        <div class="comp-stat-item">
+                            <span class="comp-stat-label">Avg Volume:</span>
+                            <span class="comp-stat-val" id="road-avg-vol-north">-</span>
+                        </div>
+                        <div class="comp-stat-item">
+                            <span class="comp-stat-label">Heavy Cargo %:</span>
+                            <span class="comp-stat-val" id="road-avg-heavy-north">-</span>
+                        </div>
+                        <div class="comp-stat-item">
+                            <span class="comp-stat-label">Avg Speed (Disp):</span>
+                            <span class="comp-stat-val" id="road-avg-speed-north">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- South Road Average -->
+                <div class="glass-panel road-comparison-card" id="road-comp-south">
+                    <div class="road-comp-header">
+                        <span class="road-comp-name">SOUTH LANE</span>
+                        <span class="road-comp-dot dot-south"></span>
+                    </div>
+                    <div class="road-comp-stats">
+                        <div class="comp-stat-item">
+                            <span class="comp-stat-label">Avg Volume:</span>
+                            <span class="comp-stat-val" id="road-avg-vol-south">-</span>
+                        </div>
+                        <div class="comp-stat-item">
+                            <span class="comp-stat-label">Heavy Cargo %:</span>
+                            <span class="comp-stat-val" id="road-avg-heavy-south">-</span>
+                        </div>
+                        <div class="comp-stat-item">
+                            <span class="comp-stat-label">Avg Speed (Disp):</span>
+                            <span class="comp-stat-val" id="road-avg-speed-south">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- East Road Average -->
+                <div class="glass-panel road-comparison-card" id="road-comp-east">
+                    <div class="road-comp-header">
+                        <span class="road-comp-name">EAST LANE</span>
+                        <span class="road-comp-dot dot-east"></span>
+                    </div>
+                    <div class="road-comp-stats">
+                        <div class="comp-stat-item">
+                            <span class="comp-stat-label">Avg Volume:</span>
+                            <span class="comp-stat-val" id="road-avg-vol-east">-</span>
+                        </div>
+                        <div class="comp-stat-item">
+                            <span class="comp-stat-label">Heavy Cargo %:</span>
+                            <span class="comp-stat-val" id="road-avg-heavy-east">-</span>
+                        </div>
+                        <div class="comp-stat-item">
+                            <span class="comp-stat-label">Avg Speed (Disp):</span>
+                            <span class="comp-stat-val" id="road-avg-speed-east">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- West Road Average -->
+                <div class="glass-panel road-comparison-card" id="road-comp-west">
+                    <div class="road-comp-header">
+                        <span class="road-comp-name">WEST LANE</span>
+                        <span class="road-comp-dot dot-west"></span>
+                    </div>
+                    <div class="road-comp-stats">
+                        <div class="comp-stat-item">
+                            <span class="comp-stat-label">Avg Volume:</span>
+                            <span class="comp-stat-val" id="road-avg-vol-west">-</span>
+                        </div>
+                        <div class="comp-stat-item">
+                            <span class="comp-stat-label">Heavy Cargo %:</span>
+                            <span class="comp-stat-val" id="road-avg-heavy-west">-</span>
+                        </div>
+                        <div class="comp-stat-item">
+                            <span class="comp-stat-label">Avg Speed (Disp):</span>
+                            <span class="comp-stat-val" id="road-avg-speed-west">-</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SQLite Transaction Logs Table -->
+            <section class="glass-panel database-table-card">
+                <div class="db-table-header">
+                    <div class="table-header-left">
+                        <span class="table-title">🗃️ SQLite Event Transaction History</span>
+                        <span class="table-subtitle">Live database logs updated automatically on AI camera inference</span>
+                    </div>
+                    <button class="btn-placeholder-action sync-btn" onclick="fetchAnalyticsDashboard()">
+                        🔄 REFRESH DATABASE METRICS
+                    </button>
+                </div>
+
+                <div class="table-responsive-wrapper">
+                    <table class="sql-logs-table">
+                        <thead>
+                            <tr>
+                                <th>TRANSACTION ID</th>
+                                <th>TIMESTAMP</th>
+                                <th>ROAD DIRECTION</th>
+                                <th>VEHICLES DETECTED</th>
+                                <th>TRAFFIC DENSITY ratio</th>
+                                <th>AMBULANCE priority</th>
+                                <th>INPUT SOURCE</th>
+                            </tr>
+                        </thead>
+                        <tbody id="logs-table-body">
+                            <tr>
+                                <td colspan="7" class="table-empty-row">INITIALIZING SQL TELEMETRY LOGGER...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+        </div>
+
+
+
+    </div>
+
+    <!-- Link to external script -->
+    <script src="script.js"></script>
+</body>
+</html>

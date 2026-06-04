@@ -32,16 +32,16 @@ let ambulanceRoad = null;        // Road containing the emergency vehicle
 let timerInterval = null;        // Reference to main intervals
 
 // --- Theme Switcher Logic ---
-window.setTheme = function(themeName) {
+window.setTheme = function (themeName) {
     document.documentElement.setAttribute('data-theme', themeName);
     localStorage.setItem('traffic_theme', themeName);
-    
+
     const selector = document.getElementById('theme-selector');
     if (selector) selector.value = themeName;
 }
 
 // Backend Integration Variables
-const BACKEND_URL = 'http://127.0.0.1:5000';
+const BACKEND_URL = 'https://naren-53-traffic-api.hf.space';
 let backendOnline = false;
 let activeModelType = 'base'; // 'base' (pretrained COCO yolov8s.pt, highly accurate) or 'custom' (experimental custom weight best.pt)
 
@@ -112,7 +112,7 @@ const emergencyDesc = document.getElementById('emergency-desc');
 const sysTimeElement = document.getElementById('sys-time');
 
 // --- Tab Switching Logic ---
- 
+
 function switchTab(tabId) {
     // 1. Toggle navigation buttons active state
     const tabsList = ['dashboard', 'images', 'videos'];
@@ -122,7 +122,7 @@ function switchTab(tabId) {
     });
     const activeNavBtn = document.getElementById(`nav-btn-${tabId}`);
     if (activeNavBtn) activeNavBtn.classList.add('active');
- 
+
     // 2. Hide all tabs and display selected tab
     tabsList.forEach(t => {
         const tabEl = document.getElementById(`tab-${t}`);
@@ -168,21 +168,21 @@ function updateDashboardData() {
         const count = counts[road];
         const heavyCount = heavyCounts[road];
         const fastCount = fastCounts[road];
-        
+
         // 1. Update Main Dashboard counts
         domCounts[road].innerHTML = `${count} <span class="unit">Vehicles</span>`;
         const heavyEl = document.getElementById(`heavy-${road}`);
         if (heavyEl) heavyEl.textContent = heavyCount;
         const fastEl = document.getElementById(`fast-${road}`);
         if (fastEl) fastEl.textContent = fastCount;
-        
+
         // 1.5 Update specific vehicle icons (approximate from heavy/fast for UI)
         let trucks = heavyCount;
         let bikes = fastCount;
         let cars = Math.max(0, count - trucks - bikes);
         let buses = 0;
         if (trucks > 1) { buses = 1; trucks -= 1; }
-        
+
         const carEl = document.getElementById(`car-${road}`);
         if (carEl) carEl.innerText = `🚗 ${cars}`;
         const busEl = document.getElementById(`bus-${road}`);
@@ -213,10 +213,10 @@ function updateDashboardData() {
         if (vidHeavyEl) vidHeavyEl.textContent = heavyCount;
         const vidFastEl = document.getElementById(`vid-fast-${road}`);
         if (vidFastEl) vidFastEl.textContent = fastCount;
-        
+
         // Density class updates
         const status = getDensityStatus(count);
-        
+
         // Main Dashboard density badge
         domDensities[road].textContent = status.text;
         domDensities[road].className = `density-badge ${status.class}`;
@@ -246,11 +246,11 @@ function recalculateSignals() {
     }
 
     const counts = getCounts();
-    
+
     // Find road with highest vehicle count
     let maxCount = -1;
     let highestRoad = '';
-    
+
     for (const road in counts) {
         if (counts[road] > maxCount) {
             maxCount = counts[road];
@@ -287,7 +287,7 @@ function updateSignalUI(overrideState = null) {
 
     // Set central label text
     displayGreenRoad.textContent = `${activeRoad.toUpperCase()} ROAD`;
-    
+
     // Reset text highlight styling
     displayGreenRoad.className = 'active-road-display';
     if (ambulanceDetected) {
@@ -343,7 +343,7 @@ function updateSignalUI(overrideState = null) {
     for (const road in counts) {
         const card = domCards[road];
         const badge = domBadges[road];
-        
+
         // Sync portal sub-badges
         const imgBadge = document.getElementById(`img-badge-${road}`);
         const vidBadge = document.getElementById(`vid-badge-${road}`);
@@ -398,30 +398,30 @@ function updateSignalUI(overrideState = null) {
 
 function setSystemMode(mode) {
     systemMode = mode;
-    
+
     // Toggle active classes on mode selector buttons
     const btnAdaptive = document.getElementById('btn-mode-adaptive');
     const btnManual = document.getElementById('btn-mode-manual');
-    
+
     if (systemMode === 'adaptive') {
         btnAdaptive.classList.add('active');
         btnManual.classList.remove('active');
-        
+
         // Reset countdown timer
         isTransitioning = false;
         countdown = signalTimerMax;
-        
+
         recalculateSignals();
         updateSignalUI();
     } else {
         btnAdaptive.classList.remove('active');
         btnManual.classList.add('active');
-        
+
         // Cancel yellow transition and freeze
         isTransitioning = false;
         updateSignalUI();
     }
-    
+
     updateTimerCircle();
 }
 
@@ -449,11 +449,11 @@ function updateManualControlButtonsState() {
 // Manually trigger a road signal green (only works when systemMode is 'manual')
 function manualSignalOverride(road) {
     if (systemMode !== 'manual' || ambulanceDetected) return;
-    
+
     currentGreenRoad = road;
     nextGreenRoad = road; // Keep next road aligned
     isTransitioning = false;
-    
+
     updateSignalUI();
 }
 
@@ -474,16 +474,16 @@ function triggerAmbulance(road) {
     emergencyBanner.classList.add('emergency-active');
     emergencyStatus.className = 'emergency-status-text active-emergency';
     emergencyStatus.textContent = 'AMBULANCE DETECTED';
-    
+
     emergencyDesc.innerHTML = `
         <span class="highlight">EMERGENCY PRIORITY ACTIVE</span><br>
         <span>GREEN SIGNAL OVERRIDE IN EFFECT FOR <strong>${road.toUpperCase()} ROAD</strong></span>
     `;
-    
+
     // Recalculate and update UI immediately
     recalculateSignals();
     updateSignalUI();
-    
+
     // Adjust timer state visually
     countdown = signalTimerMax;
     updateTimerCircle();
@@ -511,7 +511,7 @@ function clearAmbulance() {
     // Reset transition variables and trigger standard calculation
     isTransitioning = false;
     countdown = signalTimerMax;
-    
+
     recalculateSignals();
     updateSignalUI();
     updateTimerCircle();
@@ -529,11 +529,11 @@ function updateTimerCircle() {
     }
 
     timerText.textContent = countdown;
-    
+
     // SVG circular progress calculation
     const radius = 54;
     const circumference = 2 * Math.PI * radius; // 339.292
-    
+
     let offset;
     if (ambulanceDetected) {
         // Flash timer at 0 or full in emergency mode
@@ -549,7 +549,7 @@ function updateTimerCircle() {
         offset = circumference - (percent * circumference);
         timerCircle.style.stroke = 'var(--accent-cyan)';
     }
-    
+
     timerCircle.style.strokeDashoffset = offset;
 }
 
@@ -584,13 +584,13 @@ function startSignalController() {
         // Cycle Complete
         if (countdown < 0) {
             isTransitioning = false;
-            
+
             // The planned next road officially gets green signal
             currentGreenRoad = nextGreenRoad;
-            
+
             // Reset timer count
             countdown = signalTimerMax;
-            
+
             // Recalculate next path and update dashboard
             recalculateSignals();
             updateSignalUI();
@@ -651,10 +651,10 @@ function checkBackendStatus() {
 
 function setInferenceModel(modelType) {
     activeModelType = modelType;
-    
+
     const btnBase = document.getElementById('btn-model-base');
     const btnCustom = document.getElementById('btn-model-custom');
-    
+
     if (activeModelType === 'base') {
         if (btnBase) btnBase.classList.add('active');
         if (btnCustom) btnCustom.classList.remove('active');
@@ -662,7 +662,7 @@ function setInferenceModel(modelType) {
         if (btnBase) btnBase.classList.remove('active');
         if (btnCustom) btnCustom.classList.add('active');
     }
-    
+
     checkBackendStatus();
 }
 
@@ -697,15 +697,15 @@ function startLiveFeed(road, chosenDeviceId = null) {
         .then(devices => {
             const videoDevices = devices.filter(d => d.kind === 'videoinput');
             console.log(`[*] Detected ${videoDevices.length} video input devices.`);
-            
+
             let constraints = { video: true };
             let selectedDevice = null;
-            
+
             if (videoDevices.length > 0) {
                 if (chosenDeviceId) {
                     selectedDevice = videoDevices.find(d => d.deviceId === chosenDeviceId);
                 }
-                
+
                 if (!selectedDevice) {
                     // Automatically assign physical camera based on road index
                     const roadIndices = { 'north': 0, 'south': 1, 'east': 2, 'west': 3 };
@@ -713,7 +713,7 @@ function startLiveFeed(road, chosenDeviceId = null) {
                     const deviceIndex = targetIndex < videoDevices.length ? targetIndex : 0;
                     selectedDevice = videoDevices[deviceIndex];
                 }
-                
+
                 if (selectedDevice) {
                     console.log(`[*] Road ${road.toUpperCase()} starting stream using camera: ${selectedDevice.label || 'Unnamed Device'}`);
                     constraints = {
@@ -723,7 +723,7 @@ function startLiveFeed(road, chosenDeviceId = null) {
                     };
                 }
             }
-            
+
             return navigator.mediaDevices.getUserMedia(constraints)
                 .then(stream => {
                     activeStreams[road] = stream;
@@ -791,18 +791,18 @@ function startLiveFeed(road, chosenDeviceId = null) {
 // Render dynamic glassmorphic camera select dropdown inside live stream
 function renderLiveCameraSelector(road, devices, activeDeviceId) {
     const classTag = `cam-selector-overlay-${road}`;
-    
+
     // Remove existing ones first to prevent duplicate overlays on device swap
     document.querySelectorAll(`.${classTag}`).forEach(el => el.remove());
-    
+
     // Create new element
     const container = document.createElement('div');
     container.className = `live-camera-selector-overlay ${classTag}`;
-    
+
     // Find active feed containers
     const dashFeed = document.getElementById(`feed-container-${road}`);
     const portalFeed = document.getElementById(`vid-feed-container-${road}`);
-    
+
     if (dashFeed) {
         const dashClone = container.cloneNode(true);
         dashClone.innerHTML = buildSelectorHTML(road, devices, activeDeviceId);
@@ -822,7 +822,7 @@ function buildSelectorHTML(road, devices, activeDeviceId) {
         const selected = dev.deviceId === activeDeviceId ? 'selected' : '';
         options += `<option value="${dev.deviceId}" ${selected}>${label.slice(0, 18)}</option>`;
     });
-    
+
     return `
         <div class="cam-select-wrap">
             <span class="cam-select-icon">🎥</span>
@@ -845,7 +845,7 @@ function handleVideoSelected(road, event) {
         cleanupRoadMedia(road);
 
         const videoUrl = URL.createObjectURL(file);
-        
+
         const dashVid = document.getElementById(`video-${road}`);
         const portalVid = document.getElementById(`vid-video-${road}`);
 
@@ -909,7 +909,7 @@ function handlePhotoSelected(road, event) {
         cleanupRoadMedia(road);
 
         const imageUrl = URL.createObjectURL(file);
-        
+
         const dashVid = document.getElementById(`video-${road}`);
         const portalVid = document.getElementById(`vid-video-${road}`);
 
@@ -930,7 +930,7 @@ function handlePhotoSelected(road, event) {
 
         const dashImg = document.getElementById(`image-${road}`);
         const portalImg = document.getElementById(`image-img-${road}`);
-        
+
         if (dashImg) {
             dashImg.src = imageUrl;
             dashImg.classList.add('active-image');
@@ -978,21 +978,21 @@ function uploadPhotoFile(road, file) {
         method: 'POST',
         body: formData
     })
-    .then(response => response.json())
-    .then(data => {
-        if (data.predictions) {
-            renderBackendPredictions(road, data, 'image');
-        }
-    })
-    .catch(err => {
-        console.error("[!] Photo upload inference error: ", err);
-        // Fallback to local mock on failure
-        const mockCounts = { north: 10, south: 6, east: 16, west: 8 };
-        const count = mockCounts[road];
-        const heavyCount = Math.floor(count * 0.2);
-        const fastCount = Math.floor(count * 0.3);
-        updateRoadVehicleCount(road, count, heavyCount, fastCount, 'image');
-    });
+        .then(response => response.json())
+        .then(data => {
+            if (data.predictions) {
+                renderBackendPredictions(road, data, 'image');
+            }
+        })
+        .catch(err => {
+            console.error("[!] Photo upload inference error: ", err);
+            // Fallback to local mock on failure
+            const mockCounts = { north: 10, south: 6, east: 16, west: 8 };
+            const count = mockCounts[road];
+            const heavyCount = Math.floor(count * 0.2);
+            const fastCount = Math.floor(count * 0.3);
+            updateRoadVehicleCount(road, count, heavyCount, fastCount, 'image');
+        });
 }
 
 // Start frame capturing intervals for active video elements
@@ -1002,8 +1002,8 @@ function startFrameCaptureLoop(road) {
     activeFrameIntervals[road] = setInterval(() => {
         const dashFeed = document.getElementById(`feed-container-${road}`);
         const vidFeed = document.getElementById(`vid-feed-container-${road}`);
-        const hasVideo = (dashFeed && dashFeed.classList.contains('has-video')) || 
-                           (vidFeed && vidFeed.classList.contains('has-video'));
+        const hasVideo = (dashFeed && dashFeed.classList.contains('has-video')) ||
+            (vidFeed && vidFeed.classList.contains('has-video'));
 
         if (!hasVideo) {
             stopFrameCaptureLoop(road);
@@ -1012,7 +1012,7 @@ function startFrameCaptureLoop(road) {
 
         const videoElement = document.getElementById(`video-${road}`);
         const portalVid = document.getElementById(`vid-video-${road}`);
-        
+
         // Select whichever element is active/configured
         const activeVid = (videoElement && videoElement.classList.contains('active-video') && (videoElement.srcObject || videoElement.src)) ? videoElement : portalVid;
 
@@ -1032,7 +1032,7 @@ function stopFrameCaptureLoop(road) {
 // Convert canvas capture to JPEG Blob and POST to backend
 function captureAndUploadFrame(road, videoElement) {
     if (!backendOnline) return;
-    
+
     // Prevent network queue backlog if backend is slow/busy
     if (isFrameUploading[road]) return;
 
@@ -1060,17 +1060,17 @@ function captureAndUploadFrame(road, videoElement) {
             method: 'POST',
             body: formData
         })
-        .then(response => response.json())
-        .then(data => {
-            isFrameUploading[road] = false;
-            if (data.predictions) {
-                renderBackendPredictions(road, data, 'video');
-            }
-        })
-        .catch(err => {
-            isFrameUploading[road] = false;
-            console.error("[!] Frame upload inference error: ", err);
-        });
+            .then(response => response.json())
+            .then(data => {
+                isFrameUploading[road] = false;
+                if (data.predictions) {
+                    renderBackendPredictions(road, data, 'video');
+                }
+            })
+            .catch(err => {
+                isFrameUploading[road] = false;
+                console.error("[!] Frame upload inference error: ", err);
+            });
     }, 'image/jpeg', 0.7); // 70% quality compression
 }
 
@@ -1208,13 +1208,13 @@ function showYoloDetections(road, count, heavyCount, fastCount, type) {
             // Position mock boxes along structured traffic lanes to resemble real queuing
             const lane = i % 2; // Split into 2 lanes
             const numInLane = Math.floor(i / 2);
-            
+
             const width = 16 + (i % 3) * 2;   // 16% to 20% wide
             const height = 12 + (i % 2) * 2;  // 12% to 14% tall
-            
+
             // Lane X coordinates: lane 0 on left side, lane 1 on right side
             const left = lane === 0 ? (20 + (i % 3) * 2) : (60 + (i % 3) * 2);
-            
+
             // Queue Y coordinates: stack from bottom of feed (~70%) upwards
             const top = Math.max(10, 70 - (numInLane * 18) - (i % 2) * 2);
 
@@ -1232,14 +1232,14 @@ function showYoloDetections(road, count, heavyCount, fastCount, type) {
                 const lightClasses = ['car', 'motorcycle', 'bicycle'];
                 vClass = lightClasses[Math.floor(Math.random() * lightClasses.length)];
             }
-            
+
             // Check if fast moving
             let isFast = false;
             if (fastDrawn < (fastCount || 0)) {
                 isFast = true;
                 fastDrawn++;
             }
-            
+
             const confidence = (Math.random() * 0.15 + 0.80).toFixed(2); // 80% to 95%
 
             box.textContent = `${vClass}${isFast ? " [FAST]" : ""} ${confidence}`;
@@ -1358,96 +1358,96 @@ function uploadVideoFile(road, file) {
     const reportPanel = document.getElementById(`vid-analytics-report-${road}`);
     const statusVal = document.getElementById(`vid-status-${road}`);
     const grid = document.getElementById(`vid-analytics-grid-${road}`);
-    
+
     if (!reportPanel || !statusVal || !grid) return;
-    
+
     // Display report panel and transition to processing status
     reportPanel.style.display = 'block';
     statusVal.textContent = 'Processing Video...';
     statusVal.className = 'status-val text-processing';
     grid.style.display = 'none';
-    
+
     if (!backendOnline) {
         statusVal.textContent = 'Simulation Mode';
         statusVal.className = 'status-val text-failed';
         return;
     }
-    
+
     const formData = new FormData();
     formData.append('video', file);
     formData.append('road', road);
     formData.append('model_type', activeModelType);
-    
+
     fetch(`${BACKEND_URL}/detect/video`, {
         method: 'POST',
         body: formData
     })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error(`Server error: HTTP ${response.status}`);
-        }
-        return response.json();
-    })
-    .then(data => {
-        if (data.status === 'completed') {
-            statusVal.textContent = 'Completed';
-            statusVal.className = 'status-val text-completed';
-            
-            // Display stats grid
-            grid.style.display = 'grid';
-            
-            // Populate metrics
-            document.getElementById(`vid-stat-total-${road}`).textContent = data.total_vehicles;
-            document.getElementById(`vid-stat-density-${road}`).textContent = data.density_percentage + '%';
-            document.getElementById(`vid-stat-conf-${road}`).textContent = Math.round(data.average_confidence * 100) + '%';
-            
-            // Render class counts breakdown
-            const tagsContainer = document.getElementById(`vid-class-tags-${road}`);
-            tagsContainer.innerHTML = '';
-            
-            if (data.vehicle_classes && Object.keys(data.vehicle_classes).length > 0) {
-                for (const [cls, count] of Object.entries(data.vehicle_classes)) {
-                    const tag = document.createElement('span');
-                    tag.className = 'class-tag';
-                    tag.textContent = `${cls}: ${count}`;
-                    tagsContainer.appendChild(tag);
-                }
-            } else {
-                tagsContainer.textContent = 'None detected';
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`Server error: HTTP ${response.status}`);
             }
-            
-            // Calculate heavy count
-            let heavyCount = 0;
-            const heavyClasses = ['truck', 'bus', 'heavy vehicle', 'container', 'lorry'];
-            if (data.vehicle_classes) {
-                for (const [cls, cnt] of Object.entries(data.vehicle_classes)) {
-                    if (heavyClasses.includes(cls.toLowerCase())) {
-                        heavyCount += cnt;
+            return response.json();
+        })
+        .then(data => {
+            if (data.status === 'completed') {
+                statusVal.textContent = 'Completed';
+                statusVal.className = 'status-val text-completed';
+
+                // Display stats grid
+                grid.style.display = 'grid';
+
+                // Populate metrics
+                document.getElementById(`vid-stat-total-${road}`).textContent = data.total_vehicles;
+                document.getElementById(`vid-stat-density-${road}`).textContent = data.density_percentage + '%';
+                document.getElementById(`vid-stat-conf-${road}`).textContent = Math.round(data.average_confidence * 100) + '%';
+
+                // Render class counts breakdown
+                const tagsContainer = document.getElementById(`vid-class-tags-${road}`);
+                tagsContainer.innerHTML = '';
+
+                if (data.vehicle_classes && Object.keys(data.vehicle_classes).length > 0) {
+                    for (const [cls, count] of Object.entries(data.vehicle_classes)) {
+                        const tag = document.createElement('span');
+                        tag.className = 'class-tag';
+                        tag.textContent = `${cls}: ${count}`;
+                        tagsContainer.appendChild(tag);
+                    }
+                } else {
+                    tagsContainer.textContent = 'None detected';
+                }
+
+                // Calculate heavy count
+                let heavyCount = 0;
+                const heavyClasses = ['truck', 'bus', 'heavy vehicle', 'container', 'lorry'];
+                if (data.vehicle_classes) {
+                    for (const [cls, cnt] of Object.entries(data.vehicle_classes)) {
+                        if (heavyClasses.includes(cls.toLowerCase())) {
+                            heavyCount += cnt;
+                        }
                     }
                 }
+
+                // Extract fast moving count from backend response
+                const fastCount = data.fast_moving_count || 0;
+
+                // Populate Fast-Moving stat in deep video analytics grid
+                const vidStatFast = document.getElementById(`vid-stat-fast-${road}`);
+                if (vidStatFast) vidStatFast.textContent = fastCount;
+
+                // Sync new vehicle count to dashboard and trigger adaptive signal adjustment
+                updateRoadVehicleCount(road, data.total_vehicles, heavyCount, fastCount, 'video');
+
+
+            } else {
+                statusVal.textContent = 'Failed';
+                statusVal.className = 'status-val text-failed';
             }
-            
-            // Extract fast moving count from backend response
-            const fastCount = data.fast_moving_count || 0;
-
-            // Populate Fast-Moving stat in deep video analytics grid
-            const vidStatFast = document.getElementById(`vid-stat-fast-${road}`);
-            if (vidStatFast) vidStatFast.textContent = fastCount;
-
-            // Sync new vehicle count to dashboard and trigger adaptive signal adjustment
-            updateRoadVehicleCount(road, data.total_vehicles, heavyCount, fastCount, 'video');
-
-
-        } else {
-            statusVal.textContent = 'Failed';
+        })
+        .catch(err => {
+            console.error(`[!] Video deep analytics upload error for ${road}:`, err);
+            statusVal.textContent = 'Error';
             statusVal.className = 'status-val text-failed';
-        }
-    })
-    .catch(err => {
-        console.error(`[!] Video deep analytics upload error for ${road}:`, err);
-        statusVal.textContent = 'Error';
-        statusVal.className = 'status-val text-failed';
-    });
+        });
 }
 
 // Define the missing init function to setup the dashboard clock, signal controller, and initial UI state
@@ -1455,21 +1455,21 @@ function init() {
     // 1. Initialize clock and schedule periodic clock updates
     updateSystemClock();
     setInterval(updateSystemClock, 1000);
-    
+
     // Setup interval for charts
     // setInterval(updateAnalyticsCharts, 3000); // TODO: implement this
 
     // Load theme on startup
     const savedTheme = localStorage.getItem('traffic_theme') || 'dark';
     setTheme(savedTheme);
-    
+
     // 1.5. Update initial dashboard counts to reflect the state variables
     updateDashboardData();
-    
+
     // 2. Compute initial vehicle counts signal overrides and draw indicators
     recalculateSignals();
     updateSignalUI();
-    
+
     // 3. Start the adaptive traffic controller loop
     startSignalController();
 }
@@ -1477,7 +1477,7 @@ function init() {
 // Initialize when DOM loads
 window.addEventListener('DOMContentLoaded', () => {
     init();
-    
+
     // Scan backend server connection status on load and periodically
     checkBackendStatus();
     setInterval(checkBackendStatus, 5000);
@@ -1529,13 +1529,13 @@ function renderAnalyticsData(data) {
     const weeklyContainer = document.getElementById('weekly-trends-chart');
     if (weeklyContainer) {
         weeklyContainer.innerHTML = '';
-        
+
         const weeklyTrends = data.weekly_trends || [];
         const maxVal = Math.max(...weeklyTrends.map(t => t.avg_vehicles), 1); // prevent division by zero
 
         weeklyTrends.forEach(trend => {
             const heightPercent = Math.max(5, Math.min(100, (trend.avg_vehicles / maxVal) * 100));
-            
+
             const column = document.createElement('div');
             column.className = 'chart-vertical-col';
             column.innerHTML = `
@@ -1553,7 +1553,7 @@ function renderAnalyticsData(data) {
     const hourlyContainer = document.getElementById('hourly-peaks-chart');
     if (hourlyContainer) {
         hourlyContainer.innerHTML = '';
-        
+
         const peakHours = data.peak_hours || [];
         const maxVal = Math.max(...peakHours.map(p => p.avg_vehicles), 1);
 
@@ -1561,7 +1561,7 @@ function renderAnalyticsData(data) {
         peakHours.forEach(p => {
             const widthPercent = Math.max(5, Math.min(100, (p.avg_vehicles / maxVal) * 100));
             const formattedHour = String(p.hour).padStart(2, '0') + ':00';
-            
+
             // Highlight commute peaks (8:00 - 10:00 & 17:00 - 19:00)
             const isPeak = (8 <= p.hour && p.hour <= 10) || (17 <= p.hour && p.hour <= 19);
 
@@ -1582,7 +1582,7 @@ function renderAnalyticsData(data) {
     const roadStats = data.road_stats || [];
     let highestVol = -1;
     let highestRoad = '';
-    
+
     // Find highest load direction
     roadStats.forEach(stat => {
         if (stat.avg_vehicles > highestVol) {
@@ -1593,7 +1593,7 @@ function renderAnalyticsData(data) {
 
     roadStats.forEach(stat => {
         const road = stat.road.toLowerCase();
-        
+
         // Remove existing load class
         const card = document.getElementById(`road-comp-${road}`);
         if (card) {
@@ -1610,13 +1610,13 @@ function renderAnalyticsData(data) {
         const dotEl = document.querySelector(`#road-comp-${road} .road-comp-dot`);
 
         if (avgVolEl) avgVolEl.textContent = stat.avg_vehicles.toFixed(1);
-        
+
         // Cargo % calculations
         if (avgHeavyEl) {
             const heavyPercent = stat.avg_vehicles > 0 ? ((stat.avg_heavy / stat.avg_vehicles) * 100) : 0;
             avgHeavyEl.textContent = heavyPercent.toFixed(1) + '%';
         }
-        
+
         if (avgSpeedEl) {
             // Speed displacement is calculated relative to vehicle types and spacing averages
             avgSpeedEl.textContent = stat.avg_fast.toFixed(1) + ' cars/hr';
@@ -1637,7 +1637,7 @@ function renderAnalyticsData(data) {
     const tableBody = document.getElementById('logs-table-body');
     if (tableBody) {
         tableBody.innerHTML = '';
-        
+
         const recentLogs = data.recent_logs || [];
         if (recentLogs.length === 0) {
             tableBody.innerHTML = '<tr><td colspan="6" class="table-empty-row">NO TRANSACTIONS RECORDED IN SQLITE YET.</td></tr>';
@@ -1686,16 +1686,16 @@ function renderAnalyticsData(data) {
 // Generate premium pre-seeded realistic SQL database simulation data for offline mode
 function getMockAnalyticsData() {
     const now = new Date();
-    
+
     // Generate recent logs matching actual dashboard states
     const mockLogs = [];
     const roads = ['north', 'south', 'east', 'west'];
     const media = ['image', 'video'];
-    
+
     for (let i = 0; i < 15; i++) {
         const timestamp = new Date(now.getTime() - i * 8 * 60000); // every 8 minutes
         const road = roads[i % roads.length];
-        
+
         let count;
         if (road === 'east') count = 16 - (i % 3);
         else if (road === 'north') count = 10 - (i % 2);
